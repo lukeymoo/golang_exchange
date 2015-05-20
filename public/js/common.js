@@ -18,6 +18,24 @@ $(function() {
 		toggleHeaderLoginForm();
 	});
 
+	/** Close alert on click **/
+	$(document).on('click', '.close-notification-button', function(e) {
+		removeAlert($(this).parent('.notification').attr('data-id'));
+	});
+
+	/** Close forms on escape key **/
+	$(document).on('keydown', function(e) {
+		// Close form on escape
+		if(e.which == 27) {
+			if(isHeaderMenuOpen()) {
+				closeHeaderMenu();
+			}
+			if(isHeaderLoginFormOpen()) {
+				closeHeaderLoginForm();
+			}
+		}
+	});
+
 	/** Close forms on click outside element **/
 	$(document).on('click', function(e) {
 		if(isHeaderMenuOpen()) {
@@ -83,6 +101,9 @@ function tryLogin(callback) {
 			};
 			if(err.status == 0) {
 				res.message = 'Server is currently down';
+			}
+			if(err.status == 404) {
+				res.message = 'Something is wrong on server';
 			}
 			callback(res);
 		}
@@ -153,7 +174,7 @@ function getParam(sParam) {
 }
 
 function goodStyle(obj) {
-	$(obj).css('border', '1px solid rgba(0, 0, 0, 0.1)');
+	$(obj).css('border', '1px solid rgba(0, 0, 0, 0.15)');
 }
 
 function badStyle(obj) {
@@ -224,4 +245,50 @@ function validEmail(string) {
 
 function validPassword(string) {
 	return (string.length > 2 && string.length < 32) ? true : false;
+}
+
+function createAlert(string, alertLevel) {
+	alertLevel = alertLevel || 'low';
+	var classLevel = '';
+	if(alertLevel == 'high') {
+		classLevel = 'high-alert-level';
+	}
+	if(alertLevel == 'medium') {
+		classLevel = 'medium-alert-level';
+	}
+	if(alertLevel == 'low') {
+		classLevel = 'low-alert-level';
+	}
+	// Gender an ID using Date.now() ( this is for setTimeout removal )
+	var noticeID = Date.now();
+	var DOM = 
+	"<div data-id='" + noticeID + "' class='notification " + classLevel +  "'>" + 
+		"<span class='close-notification-button'>&times;</span>" +
+		"<span class='notification-text'>" + string +  "</span>" +
+	"</div>";
+	$('#notification-container').prepend(DOM);
+	// Remove this notice after 6.5 seconds
+	setTimeout(function() {
+		$('#notification-container .notification').each(function() {
+			if($(this).attr('data-id') == noticeID) {
+				$(this).fadeOut('slow', function() {
+					$(this).remove();
+					return false;
+				});
+			}
+		});
+	}, 6500);
+	return;
+}
+
+function removeAlert(id) {
+	$('#notification-container .notification').each(function() {
+		if($(this).attr('data-id') == id) {
+			$(this).fadeOut('fast', function() {
+				$(this).remove();
+				return false;
+			});
+		}
+	});
+	return;
 }

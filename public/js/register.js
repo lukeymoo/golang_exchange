@@ -57,11 +57,20 @@ $(function() {
 		errors = errors.split('|');
 		for(var e in errors) {
 			switch(errors[e]) {
+				case 'invalid_form':
+					createAlert("Form was missing some fields", "high");
+					break;
+				case 'logged_in':
+					createAlert("Must log out before creating a new account", "high");
+					break;
 				case 'F':
+					badStyle(fname.obj);
 					generateSignupError('Invalid name', lname.obj);
+					goodStyle(lname.obj);
 					clearField(fname.obj);
 					break;
 				case 'L':
+					clearErrors();
 					generateSignupError('Invalid name', lname.obj);
 					clearField(lname.obj);
 					break;
@@ -93,6 +102,10 @@ $(function() {
 					generateSignupError('Email address already in use', email.obj);
 					clearField(email.obj);
 					clearField(emailAgain.obj);
+					break;
+				case 'Z':
+					generateSignupError("Invalid zipcode", zipcode.obj);
+					clearField(zipcode.obj);
 					break;
 			}
 		}

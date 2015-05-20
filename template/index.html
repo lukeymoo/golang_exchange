@@ -1,0 +1,97 @@
+{{ define "header" }}
+<div id='header-bar'>
+	<span id='header-menu-button'>&#9776;</span>
+	<a href='/'><span id='header-logo'> DMV EXCHANGE </span></a>
+	<span id='beta-logo'>*BETA</span>
+	<div id='header-menu'>
+		<a href='/'>
+			<span class='header-menu-option'>Home</span>
+		</a>
+		{{ if eq .LOGGED_IN "true" }}
+			<span class='header-menu-option'>Account</span>
+		{{ else }}
+			<a href='/register'>
+				<span class='header-menu-option'>Sign up</span>
+			</a>
+		{{ end }}
+		<span class='header-menu-option'>Submit advice</span>
+	</div>
+	{{ if eq .LOGGED_IN "true" }}
+		<div id='header-controls'>
+			<span class='header-control-button'>Lukeymoo</span>
+		</div>
+	{{ else }}
+	<div id='header-controls'>
+		<span id='header-login-button' class='header-control-button' data-state='closed'>Log in</span>
+		<a href='/register'>
+			<span class='header-control-button'>Register</span>
+		</a>
+	</div>
+	{{ end }}
+	{{ if ne .LOGGED_IN "true" }}
+		<div id='header-login-container'>
+			<form id='header-login-form'>
+				<label>Username or email</label>
+				<input id='username-or-email' type='text' placeholder='Username or email'>
+				<input id='password' type='password' placeholder='Password'>
+				<span id='header-login-forgot'>forgot password?</span>
+			</form>
+			<button id='header-login-form-button'>Log in</button>
+		</div>
+	{{ end }}
+</div>
+<div id='notification-container'></div>
+{{ end }}
+
+{{ define "registerForm" }}
+	<span id='banner'>Create an account to get started</span>
+	<div id='signup-why'>
+		<span id='main'>Build trust with your buyers and sellers</span>
+		<span id='main-support'>
+			With built-in review and reporting system we filter and remove scammers and people who have a history of backing-out/wasting time.
+		</span>
+		<span id='secondary'>Find buyers and sellers quickly and efficiently</span>
+		<span id='secondary-support'>
+			Efficient search algorithms ensure you can find relevant products closests to you and at a price you want.
+		</span>
+		<span id='last'>Build a brand with no overhead</span>
+		<span id='last-support'>
+			Sell your products through DMV Exchange and avoid the cost and associated overhead of a business.
+		</span>
+	</div>
+	<div id='signup-card'>
+		<div id='signup-container'>
+			<form id='signup-form' action='/register/process' method='post'>
+				<label>Name</label>
+				<input id='firstname' name='f' type='text' placeholder='First' class='same-line-input field'>
+				<input id='lastname' name='l' type='text' placeholder='Last' class='same-line-input field'>
+				<label>Username</label>
+				<input id='username' name='u' type='text' placeholder='Username' class='single-line-input field'>
+				<label>Password</label>
+				<input id='password' name='p' type='password' placeholder='Password' class='single-line-input field'>
+				<label>Confirm password</label>
+				<input id='password-again' name='pa' type='password' placeholder='Confirm password' class='single-line-input field'>
+				<label>Email</label>
+				<input id='email' name='e' type='text' placeholder='Email' class='single-line-input field'>
+				<label>Confirm email</label>
+				<input id='email-again' name='ea' type='text' placeholder='Confirm email' class='single-line-input field'>
+				<label>Zipcode</label>
+				<input id='zipcode' name='z' maxlength='5' type='text' placeholder='Zipcode' class='same-line-input field'>
+				<label>Gender</label>
+				<select id='gender-select' name='g' class='field'>
+					<option selected='true'>I am...</option>
+					<option value='m'>Male</option>
+					<option value='f'>Female</option>
+				</select>
+				<label>Terms and Conditions</label>
+				<div id='tos-container' class='field'>
+					<input id='tos-checkbox' type='checkbox' value='I_AGREE' name='tos'>
+					<span id='tos-disclosure'>
+						I agree to the <a href='/h/policy.html'>policies</a> and the <a href='/h/policy.html'>Terms of Service</a>
+					</span>
+				</div>
+				<button id='signup-button'>Sign up</button>
+			</form>
+		</div>
+	</div>
+{{ end }}

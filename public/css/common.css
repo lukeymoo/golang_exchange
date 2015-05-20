@@ -214,6 +214,10 @@ body {
 	margin-bottom: 5px;
 }
 
+#header-login-container input:hover {
+	border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
 #header-login-container input:focus {
 	outline: none;
 	border: 1px solid rgba(0, 0, 0, 0.25);
@@ -243,4 +247,70 @@ body {
 #header-login-container button:hover {
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	background-color: rgba(0, 0, 0, 0.15);
+}
+
+#notification-container {
+	position: absolute;
+	top: 50px;
+	right: 0px;
+	padding-top: 25px;
+	padding-right: 15px;
+	width: 400px;
+	height: 100vh;
+	pointer-events: none;
+}
+
+.notification {
+	display: block;
+	float: right;
+	margin-bottom: 15px;
+	width: 275px;
+	height: 110px;
+	padding: 5px;
+	border-radius: 3px;
+	pointer-events: auto;
+}
+
+.notification-text {
+	display: block;
+	width: 250px;
+	margin-top: 5px;
+	padding-left: 5px;
+}
+
+.close-notification-button {
+	display: block;
+	margin-top: -8px;
+	margin-right: 5px;
+	float: right;
+	font-size: 2.25em;
+	cursor: pointer;
+	pointer: hand;
+}
+
+.high-alert-level {
+	color: rgb(230, 230, 230);
+	background-color: rgb(185, 0, 0);
+}
+
+.high-alert-level .close-notification-button {
+	color: black;
+}
+
+.medium-alert-level {
+	color: black;
+	background-color: rgb(250, 100, 0);
+}
+
+.medium-alert-level .close-notification-button {
+	color: black;
+}
+
+.low-alert-level {
+	color: rgb(200, 200, 200);
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.low-alert-level .close-notification-button {
+	color: rgb(210, 0, 0);
 }

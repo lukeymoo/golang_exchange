@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+	<title>DX &#8212; {{ .TITLE }}</title>
+	<link rel='stylesheet' href='/css/main.css?v=1'>
+	<link rel='stylesheet' href='/css/normalize.css?v=1'>
+	<link rel='stylesheet' href='/css/common.css?v=1'>
+	{{ if eq .PAGE "REGISTER" }}
+		<link rel='stylesheet' href='/css/register.css?v=1'>
+	{{ end }}
+</head>
+<body>
+	{{ template "header" . }}
+	{{ if eq .PAGE "REGISTER" }}
+		{{ template "registerForm" . }}
+	{{ end }}
+	<!-- Scripts -->
+	<script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+	<script src='/js/common.js'></script>
+	{{ if eq .PAGE "REGISTER" }}
+		<script src='/js/register.js'></script>
+	{{ end }}
+</body>
+</html>
