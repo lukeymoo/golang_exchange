@@ -11,6 +11,7 @@ import (
 	routes "../routes"
 	session "../session"
 	database "../database"
+	"os"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	port := ":3000"
 
 	// Static files root path
-	static := "/home/busx/Documents/goweb/public/"
+	static := os.Getenv("GO_STATIC_PATH")
 
 	// Static files
 	router.ServeFiles("/js/*filepath", http.Dir(static + "/js")) // Javascript
