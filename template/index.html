@@ -7,18 +7,19 @@
 		<a href='/'>
 			<span class='header-menu-option'>Home</span>
 		</a>
+		<span class='header-menu-option'>Submit advice</span>
 		{{ if eq .LOGGED_IN "true" }}
 			<span class='header-menu-option'>Account</span>
+			<a href="/login/logout"><span class="header-menu-option">Logout</span></a>
 		{{ else }}
 			<a href='/register'>
 				<span class='header-menu-option'>Sign up</span>
 			</a>
 		{{ end }}
-		<span class='header-menu-option'>Submit advice</span>
 	</div>
 	{{ if eq .LOGGED_IN "true" }}
 		<div id='header-controls'>
-			<span class='header-control-button'>Lukeymoo</span>
+			<span class='header-control-button'>{{ .USERNAME }}</span>
 		</div>
 	{{ else }}
 	<div id='header-controls'>

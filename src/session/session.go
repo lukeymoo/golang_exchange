@@ -4,15 +4,16 @@ package session
 */
 
 import (
-	"fmt"
 	redis "github.com/alphazero/Go-Redis"
 	"log"
+	"strings"
 	"time"
 	"strconv"
+	"fmt"
 )
 
 var (
-	rc redis.Client
+	rc redis.AsyncClient
 )
 
 /** TITLE, PAGE are set manually **/
@@ -30,7 +31,7 @@ type TemplateContext struct {
 */
 func InitRedis() {
 	spec := redis.DefaultSpec().Db(0).Password("9b3af6edcf71b34520a7d16412ad9325OMGOMG")
-	client, err := redis.NewSynchClientWithSpec(spec)
+	client, err := redis.NewAsynchClientWithSpec(spec)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,44 +42,10 @@ func InitRedis() {
 func CreateSessionObj(t *TemplateContext) {
 	// if there is a session check for username, userid etc..
 	if IsSession() {
-		// Set logged in
-		t.LOGGED_IN = "true"
-		// Check username
-		username, err := rc.Get("USERNAME");
-		if err != nil {
-			log.Fatal(err)
-		}
-		if username == nil {
-			t.USERNAME = ""
-		} else {
-			if len(string(username)) > 0 {
-				t.USERNAME = string(username)
-			}
-		}
-		// Check user id
-		userid, err := rc.Get("USER_ID")
-		if err != nil {
-			log.Fatal(err)
-		}
-		if userid == nil {
-			t.USER_ID = ""
-		} else {
-			if len(string(userid)) > 0 {
-				t.USER_ID = string(userid)
-			}
-		}
-		// check email
-		email, err := rc.Get("EMAIL")
-		if err != nil {
-			log.Fatal(err)
-		}
-		if email == nil {
-			t.EMAIL = ""
-		} else {
-			if len(string(email)) > 0 {
-				t.EMAIL = string(email)
-			}
-		}
+		t.LOGGED_IN = GetVariable("LOGGED_IN")
+		t.USERNAME 	= GetVariable("USERNAME")
+		t.USER_ID 	= GetVariable("USER_ID")
+		t.EMAIL 	= GetVariable("EMAIL")
 	} else { // If not logged in fill in defaults
 		t.LOGGED_IN = "false"
 		t.USERNAME = ""
@@ -88,13 +55,25 @@ func CreateSessionObj(t *TemplateContext) {
 	return
 }
 
+// Sets session, for login/registration
+func SetSession(username string, email string, user_id string) (bool) {
+	username_formatted := strings.ToLower(username)
+	email_formatted := strings.ToLower(email)
+	rc.Set("LOGGED_IN", []byte("true"))
+	rc.Set("USERNAME", []byte(username_formatted))
+	rc.Set("USER_ID", []byte(user_id))
+	rc.Set("EMAIL", []byte(email_formatted))
+	UpdateLastActivity() // LAST_ACTIVITY
+	return true
+}
+
 // Clears session
 func ClearSession() {
-	rc.Del("LOGGED_IN")
-	rc.Del("LAST_ACTIVITY")
-	rc.Del("USERNAME")
-	rc.Del("USER_ID")
-	rc.Del("EMAIL")
+	rc.Set("LOGGED_IN", []byte("false"))
+	rc.Set("LAST_ACTIVITY", []byte(""))
+	rc.Set("USERNAME", []byte(""))
+	rc.Set("USER_ID", []byte(""))
+	rc.Set("EMAIL", []byte(""))
 	return
 }
 
@@ -112,22 +91,48 @@ func IsSession() bool {
 	return false
 }
 
-// Checks if LAST_ACTIVITY is set and if not sets it to unix string literal of unix epoch
-func IsTimedOut() bool {
-	last_activity, err := rc.Get("LAST_ACTIVITY")
+// Gets a specified session variable
+func GetVariable(variable string) string {
+	futureResult, err := rc.Get(variable)
 	if err != nil {
 		log.Fatal(err)
 	}
+	result, err := futureResult.Get()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if result == nil {
+		return ""
+	}
+	return string(result)
+}
+
+// Checks if LAST_ACTIVITY is set and if not sets it to unix string literal of unix epoch
+func IsTimedOut() bool {
+
+	last_activity := GetVariable("LAST_ACTIVITY")
+
 	// If the last activity was never set, set one
-	if last_activity == nil {
-		// Update last activity
+	if last_activity == "" {
 		UpdateLastActivity()
-		ts, err := rc.Get("LAST_ACTIVITY")
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Timestamp => %s", ts)
 		return false
+	} else { // If it was set, determine if timed out ( 3600 seconds )
+		current_ts, err := strconv.Atoi(strconv.FormatInt(time.Now().Unix(), 10))
+		if err != nil {
+			fmt.Println("Session handler error determining if timed out => ", err)
+			return true
+		}
+		last_activity_i, err := strconv.Atoi(GetVariable("LAST_ACTIVITY"))
+		if err != nil {
+			fmt.Println("Session handler error determing if timed out ( part 2 ) => ", err)
+			return true
+		}
+		if current_ts - last_activity_i > 3600 {
+			return true
+		} else {
+			UpdateLastActivity()
+			return false
+		}
 	}
 	return false
 }
@@ -140,19 +145,25 @@ func UpdateLastActivity() {
 
 // Checks if LOGGED_IN is set && if not sets it to false
 func IsLoggedIn() bool {
+	// Queue
 	val, err := rc.Get("LOGGED_IN")
 	if err != nil {
 		log.Fatal(err)
 	}
-	if val == nil {
+	// Check response
+	resp, err := val.Get()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp == nil {
 		rc.Set("LOGGED_IN", []byte("false"))
 		return false
 	}
-	if string(val) == "true" {
+	if string(resp) == "true" {
 		return true
 	}
 
-	if string(val) == "false" {
+	if string(resp) == "false" {
 		return false
 	}
 	return false

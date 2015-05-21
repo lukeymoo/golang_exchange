@@ -167,7 +167,9 @@
 	border: none;
 }
 
-#tos-container a span {
+#tos-container a,
+#tos-container a:visited,
+#tos-container a:active {
 	color: rgb(0, 100, 200);
 }
 

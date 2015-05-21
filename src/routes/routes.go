@@ -7,27 +7,24 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/julienschmidt/httprouter"
-	redis "github.com/alphazero/Go-Redis"
 	session "../session"
+	models "../models"
+	//helper "../helper"
+	form "../forms"
 	"html/template"
-	"regexp"
-	"log"
+	"strings"
 )
 
-var (
-	rc redis.Client
-)
+// DELETE LATER
+func RedisTest(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	// Get LOGGED_IN
+	fmt.Fprintf(res, "LOGGED_IN => %s\nUSERNAME => %s\nEMAIL => %s\n", session.GetVariable("LOGGED_IN"), session.GetVariable("USERNAME"), session.GetVariable("EMAIL"))
+	return
+}
 
-/**
-	Initializes redis session client
-*/
-func InitRedis() {
-	spec := redis.DefaultSpec().Db(0).Password("9b3af6edcf71b34520a7d16412ad9325OMGOMG")
-	client, err := redis.NewSynchClientWithSpec(spec)
-	if err != nil {
-		log.Fatal(err)
-	}
-	rc = client
+// DELETE LATER
+func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	fmt.Fprintf(res, "LOGGED_IN => %s\nUSERNAME => %s\nEMAIL => %s\nUSER_ID => %s\nLAST_ACTIVITY => %s", session.GetVariable("LOGGED_IN"), session.GetVariable("USERNAME"), session.GetVariable("EMAIL"), session.GetVariable("USER_ID"), session.GetVariable("LAST_ACTIVITY"))
 	return
 }
 
@@ -95,7 +92,7 @@ func RegisterPage(res http.ResponseWriter, req *http.Request, params httprouter.
 func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	// Ensure not logged in
 	if session.IsSession() {
-		http.Redirect(res, req, "/register?err=logged_in", 301)
+		http.Redirect(res, req, "/register?err=logged_in", 302)
 		return
 	}
 	// Ensure we received all register form elements
@@ -107,8 +104,8 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 	}
 
 	// Ensure we recieved all form fields
-	if !validRegisterForm(req) {
-		http.Redirect(res, req, "/register?err=invalid_form", 301)
+	if !form.ValidRegisterForm(req) {
+		http.Redirect(res, req, "/register?err=invalid_form", 302)
 		return
 	}
 
@@ -118,18 +115,18 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 			"&g=" + req.Form.Get("g")
 	
 	// Validate names
-	if !validName(req.Form.Get("f")) {
+	if !form.ValidName(req.Form.Get("f")) {
 		err += "F|"
 	}
-	if !validName(req.Form.Get("l")) {
+	if !form.ValidName(req.Form.Get("l")) {
 		err += "L|"
 	}
 	// Validate Username
-	if !validUsername(req.Form.Get("u")) {
+	if !form.ValidUsername(req.Form.Get("u")) {
 		err += "U|"
 	}
 	// Password
-	if !validPassword(req.Form.Get("p")) {
+	if !form.ValidPassword(req.Form.Get("p")) {
 		err += "P|"
 	}
 	// Password again
@@ -137,33 +134,58 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 		err += "PM|"
 	}
 	// Email
-	if !validEmail(req.Form.Get("e")) {
+	if !form.ValidEmail(req.Form.Get("e")) {
 		err += "E|"
 	}
 	// Email again
-	if req.Form.Get("e") != req.Form.Get("ea") {
+	e_lower := strings.ToLower(req.Form.Get("e"))
+	ea_lower := strings.ToLower(req.Form.Get("ea"))
+	if e_lower != ea_lower {
 		err += "EM|"
 	}
 	// Zipcode
-	if !validZipcode(req.Form.Get("z")) {
+	if !form.ValidZipcode(req.Form.Get("z")) {
 		err += "Z|"
 	}
 	// If errors redirect with error codes
 	if err != "" {
 		err = err[:len(err)-1]
-		http.Redirect(res, req, "/register?err=" + err + query, 301)
+		http.Redirect(res, req, "/register?err=" + err + query, 302)
 		return
 	}
 
-	/** Determine if the username and/or email is in use **/
-	if session.IsSession() {
-		if session.IsTimedOut() {
-			fmt.Fprint(res, "Session has timed out")
-		} else {
-			fmt.Fprint(res, "Logged in")
-		}
+	// If username is in use, redirect with error
+	err = ""
+	if models.DoesUsernameExist(req.Form.Get("u")) {
+		err += "UIN|"
+	}
+	if models.DoesEmailExist(req.Form.Get("e")) {
+		err += "EIN|"
+	}
+	if err != "" {
+		err = err[:len(err)-1]
+		http.Redirect(res, req, "/register?err=" + err + query, 302)
+		return
+	}
+	// Save the user, set session & redirect
+	var user models.User
+	user.Firstname 	= req.Form.Get("f")
+	user.Lastname 	= req.Form.Get("l")
+	user.Username 	= req.Form.Get("u")
+	user.Password 	= req.Form.Get("p")
+	user.Email 		= req.Form.Get("e")
+	user.Zipcode 	= req.Form.Get("z")
+	if models.SaveUser(user) {
+		// Get Saved user
+		user = models.FindUserByUsername(req.Form.Get("u"))
+		// Set session
+		session.SetSession(req.Form.Get("u"), req.Form.Get("e"), user.Id.String())
+		// Redirect
+		http.Redirect(res, req, "/", 302)
+		return
 	} else {
-		fmt.Fprint(res, "Not logged in")
+		// Server error
+		fmt.Fprint(res, "Server error => ", err)
 	}
 	return
 }
@@ -177,139 +199,7 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 */
 func Logout(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	session.ClearSession();
-	http.Redirect(res, req, "/", 301)
+	http.Redirect(res, req, "/", 302)
 	return
 }
 
-
-
-
-
-/** Helpers **/
-
-
-func validRegisterForm(req *http.Request) bool {
-
-	/** Ensure fields are set and not empty **/
-	// First name
-	if req.Form.Get("f") == "" {
-		return false
-	}
-	// Last name
-	if req.Form.Get("l") == "" {
-		return false
-	}
-	// Username
-	if req.Form.Get("u") == "" {
-		return false
-	}
-	// Password
-	if req.Form.Get("p") == "" {
-		return false
-	}
-	// Password again
-	if req.Form.Get("pa") == "" {
-		return false
-	}
-	// Email
-	if req.Form.Get("e") == "" {
-		return false
-	}
-	// Email again
-	if req.Form.Get("ea") == "" {
-		return false
-	}
-	// Zipcode
-	if req.Form.Get("z") == "" {
-		return false
-	}
-	// Gender must be set
-	if req.Form.Get("g") == "" {
-		return false
-	}
-	// Gender must be 'm' or 'f'
-	if req.Form.Get("g") != "m" && req.Form.Get("g") != "f" {
-		return false
-	}
-	// Terms and conditions must be I_AGREE
-	if req.Form.Get("tos") != "I_AGREE" {
-		return false
-	}
-
-	return true
-}
-
-// Validate Name
-func validName(name string) bool {
-	// Regex
-	match, err := regexp.MatchString(`^[A-Za-z]+(([\'-])?[A-Za-z]+$)`, name)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !match {
-		return false
-	}
-
-	// Test length
-	if len(name) < 2 || len(name) > 32 {
-		return false
-	}
-
-
-	return true
-}
-
-// Validate Username
-func validUsername(name string) bool {
-	// Regex
-	match, err := regexp.MatchString(`^[A-Za-z0-9_]+$`, name)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !match {
-		return false
-	}
-	// Test length
-	if len(name) < 2 || len(name) > 16 {
-		return false
-	}
-	return true
-}
-
-// Validate Password
-func validPassword(pwd string) bool {
-	if len(pwd) < 2 || len(pwd) > 32 {
-		return false
-	}
-	return true
-}
-
-// Validate email
-func validEmail(email string) bool {
-	match, err := regexp.MatchString(`^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$`, email)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !match {
-		return false
-	}
-	if len(email) > 64 {
-		return false
-	}
-	return true
-}
-
-// Validate zipcode
-func validZipcode(code string) bool {
-	match, err := regexp.MatchString(`^[0-9]+$`, code)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !match {
-		return false
-	}
-	if len(code) != 5 {
-		return false
-	}
-	return true
-}

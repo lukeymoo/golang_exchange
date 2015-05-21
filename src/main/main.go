@@ -10,6 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	routes "../routes"
 	session "../session"
+	database "../database"
 )
 
 func main() {
@@ -20,6 +21,10 @@ func main() {
 	// Initialize redis client
 	fmt.Println("Initializing redis...")
 	session.InitRedis()
+
+	// Initialize mongo client
+	fmt.Println("Initialize mongo...")
+	database.InitMgo()
 
 	// Port
 	port := ":3000"
@@ -39,9 +44,20 @@ func main() {
 	router.POST("/register/process", routes.ProcessRegister) // Process registration form
 	router.GET("/login/logout", routes.Logout) // Logout
 
+	// Debug
+	router.GET("/debug/redis", routes.RedisTest)
+	router.GET("/debug", routes.Debug)
+
 	// Start listening
 	fmt.Println("Server listening on port " + port)
-	log.Fatal(http.ListenAndServe(port, router))
+	http.ListenAndServe(port, Log(router))
 
 	return
+}
+
+func Log(handler http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+	handler.ServeHTTP(w, r)
+    })
 }

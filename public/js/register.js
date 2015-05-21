@@ -248,7 +248,7 @@ function validSignup() {
 	// Validate email
 	if(validateEmail(email.val)) {
 		// If valid email ensure both fields match
-		if(email.val != emailAgain.val) {
+		if(email.val.toLowerCase() != emailAgain.val.toLowerCase()) {
 			status = false;
 			generateSignupError('Email addresses don\'t match', emailAgain.obj);
 		}
