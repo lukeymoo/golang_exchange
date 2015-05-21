@@ -70,14 +70,14 @@ $(function() {
 				// Submit
 				tryLogin(function(res) {
 					// On good login refresh page
-					if(res.status == 'DX-OK') {
+					if(res.Status == 'DX-OK') {
 						window.location.href = '/';
 					} else {
 						isLoginSubmitted = false;
 						// Show login button
 						$('#header-login-form-button').show();
 						// Insert error after password field
-						generateFormError(res.message, password.obj);
+						generateFormError(res.Message, password.obj);
 					}
 				});
 			}
@@ -100,10 +100,10 @@ function tryLogin(callback) {
 				message: 'Server error'
 			};
 			if(err.status == 0) {
-				res.message = 'Server is currently down';
+				res.Message = 'Server is currently down';
 			}
 			if(err.status == 404) {
-				res.message = 'Something is wrong on server';
+				res.Message = 'Something is wrong on server';
 			}
 			callback(res);
 		}

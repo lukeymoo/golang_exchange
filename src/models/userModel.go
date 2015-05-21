@@ -55,7 +55,7 @@ func ValidEmailLogin(email string, password string) (bool) {
 	password_formatted := helper.MD5String(password)
 	count, err := db.Conn.DB("dmvexchange").C("USERS").Find(bson.M {
 		"email": email_formatted,
-		"password": password_formatted,
+		"pwd": password_formatted,
 	}).Count()
 	if err != nil {
 		fmt.Println("[-] MongoDB error => ", err)
@@ -76,7 +76,7 @@ func ValidUsernameLogin(username string, password string) (bool) {
 	password_formatted := helper.MD5String(password)
 	count, err := db.Conn.DB("dmvexchange").C("USERS").Find(bson.M {
 		"username": username_formatted,
-		"password": password_formatted,
+		"pwd": password_formatted,
 	}).Count()
 	if err != nil {
 		fmt.Println("[-] MongoDB error => ", err)

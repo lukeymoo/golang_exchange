@@ -6,6 +6,16 @@ import (
 	"log"
 )
 
+func ValidLoginForm(req *http.Request) (bool) {
+	if req.Form.Get("u") == "" {
+		return false
+	}
+	if req.Form.Get("p") == "" {
+		return false
+	}
+	return true
+}
+
 func ValidRegisterForm(req *http.Request) bool {
 
 	/** Ensure fields are set and not empty **/

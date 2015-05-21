@@ -43,10 +43,10 @@ func main() {
 	router.GET("/", routes.IndexPage) // Index ( Home ) page
 	router.GET("/register", routes.RegisterPage) // Display registration page
 	router.POST("/register/process", routes.ProcessRegister) // Process registration form
+	router.POST("/login/process", routes.ProcessLogin) // Process login form ( Ajax Request )
 	router.GET("/login/logout", routes.Logout) // Logout
 
 	// Debug
-	router.GET("/debug/redis", routes.RedisTest)
 	router.GET("/debug", routes.Debug)
 
 	// Start listening

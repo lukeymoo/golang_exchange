@@ -12,19 +12,18 @@ import (
 	//helper "../helper"
 	form "../forms"
 	"html/template"
+	"encoding/json"
 	"strings"
 )
 
-// DELETE LATER
-func RedisTest(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	// Get LOGGED_IN
-	fmt.Fprintf(res, "LOGGED_IN => %s\nUSERNAME => %s\nEMAIL => %s\n", session.GetVariable("LOGGED_IN"), session.GetVariable("USERNAME"), session.GetVariable("EMAIL"))
-	return
+type ApiResponse struct {
+	Status string
+	Message string
 }
 
 // DELETE LATER
 func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	fmt.Fprintf(res, "LOGGED_IN => %s\nUSERNAME => %s\nEMAIL => %s\nUSER_ID => %s\nLAST_ACTIVITY => %s", session.GetVariable("LOGGED_IN"), session.GetVariable("USERNAME"), session.GetVariable("EMAIL"), session.GetVariable("USER_ID"), session.GetVariable("LAST_ACTIVITY"))
+	fmt.Fprint(res, "This path does nothing lol!!")
 	return
 }
 
@@ -85,6 +84,141 @@ func RegisterPage(res http.ResponseWriter, req *http.Request, params httprouter.
 }
 
 /**
+	API Endpoint
+	POST
+	/login/process
+	Processes login form & sets session
+*/
+func ProcessLogin(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	// Ensure not logged in
+	if session.IsSession() {
+		http.Redirect(res, req, "/", 302)
+		return
+	}
+	// Parse form
+	formError := req.ParseForm()
+	if formError != nil {
+		fmt.Println("Error authenticating => ", formError)
+		fmt.Fprint(res, "Server error please try again")
+		return
+	}
+	// Ensure proper form
+	if !form.ValidLoginForm(req) {
+		// String
+		apiresponse := ApiResponse{"DX-REJECTED", "Form is missing field(s)"}
+		apiresponse_formatted, err := json.Marshal(apiresponse)
+		if err != nil {
+			fmt.Println("Error authenticating => ", err)
+			fmt.Fprint(res, "Server error please try again")
+			return
+		}
+		res.Header().Set("Content-Type", "application/json");
+		res.Write(apiresponse_formatted)
+	}
+	u_type := ""
+	// Is valid username or email
+	if form.ValidUsername(req.Form.Get("u")) {
+		u_type = "username"
+	} else if form.ValidEmail(req.Form.Get("u")) {
+		u_type = "email"
+	}
+
+	if u_type == "" {
+		// String
+		apiresponse := ApiResponse{"DX-REJECTED", "Not a valid username"}
+		apiresponse_formatted, err := json.Marshal(apiresponse)
+		if err != nil {
+			fmt.Println("Error authenticating => ", err)
+			fmt.Fprint(res, "Server error please try again")
+			return
+		}
+		res.Header().Set("Content-Type", "application/json");
+		res.Write(apiresponse_formatted)
+		return
+	}
+
+	// Validate password
+	if !form.ValidPassword(req.Form.Get("p")) {
+		// String
+		apiresponse := ApiResponse{"DX-REJECTED", "Password must be 2-32 characters"}
+		apiresponse_formatted, err := json.Marshal(apiresponse)
+		if err != nil {
+			fmt.Println("Error authenticating => ", err)
+			fmt.Fprint(res, "Server error please try again")
+			return
+		}
+		res.Header().Set("Content-Type", "application/json");
+		res.Write(apiresponse_formatted)
+		return
+	}
+
+	if u_type == "username" {
+		if models.ValidUsernameLogin(req.Form.Get("u"), req.Form.Get("p")) {
+			var user models.User // placeholder
+			user = models.FindUserByUsername(req.Form.Get("u"))
+			session.SetSession(req.Form.Get("u"), user.Email, user.Id.String())
+		
+			// String
+			apiresponse := ApiResponse{"DX-OK", "Logged in"}
+			apiresponse_formatted, err := json.Marshal(apiresponse)
+			if err != nil {
+				fmt.Println("Error authenticating => ", err)
+				fmt.Fprint(res, "Server error please try again")
+				return
+			}
+			res.Header().Set("Content-Type", "application/json");
+			res.Write(apiresponse_formatted)
+			return
+		} else {
+			// String
+			apiresponse := ApiResponse{"DX-REJECTED", "Invalid Username/Password combo"}
+			apiresponse_formatted, err := json.Marshal(apiresponse)
+			if err != nil {
+				fmt.Println("Error authenticating => ", err)
+				fmt.Fprint(res, "Server error please try again")
+				return
+			}
+			res.Header().Set("Content-Type", "application/json");
+			res.Write(apiresponse_formatted)
+			return
+		}
+	} else {
+		// email
+		if models.ValidEmailLogin(req.Form.Get("u"), req.Form.Get("p")) {
+			var user models.User // placeholder
+			user = models.FindUserByEmail(req.Form.Get("u"))
+			session.SetSession(user.Username, req.Form.Get("e"), user.Id.String())
+			
+			// String
+			apiresponse := ApiResponse{"DX-OK", "Logged in"}
+			apiresponse_formatted, err := json.Marshal(apiresponse)
+			if err != nil {
+				fmt.Println("Error authenticating => ", err)
+				fmt.Fprint(res, "Server error please try again")
+				return
+			}
+			res.Header().Set("Content-Type", "application/json");
+			res.Write(apiresponse_formatted)
+			return
+		} else {
+			// String
+			apiresponse := ApiResponse{"DX-REJECTED", "Invalid Email/Password combo"}
+			apiresponse_formatted, err := json.Marshal(apiresponse)
+			if err != nil {
+				fmt.Println("Error authenticating => ", err)
+				fmt.Fprint(res, "Server error please try again")
+				return
+			}
+			res.Header().Set("Content-Type", "application/json");
+			res.Write(apiresponse_formatted)
+			return
+		}
+	}
+
+	return
+}
+
+/**
 	POST
 	/register/process
 	Processes register form & creates an account
@@ -99,7 +233,7 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 	formError := req.ParseForm()
 	if formError != nil {
 		fmt.Println("Error =>", formError)
-		fmt.Fprint(res, "Server error")
+		fmt.Fprint(res, "Server error please try again")
 		return
 	}
 
@@ -203,3 +337,12 @@ func Logout(res http.ResponseWriter, req *http.Request, params httprouter.Params
 	return
 }
 
+
+/** HELPER **/
+
+func JsonResponse(status string, message string) ApiResponse {
+	var temp ApiResponse // Placeholder
+	temp.Status = status
+	temp.Message = message
+	return temp
+}
