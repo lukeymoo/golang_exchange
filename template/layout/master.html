@@ -10,13 +10,23 @@
 	{{ end }}
 </head>
 <body>
-	{{ template "header" . }}
-	{{ if eq .PAGE "REGISTER" }}
-		{{ template "registerForm" . }}
-	{{ end }}
+	<div id='wrapper'>
+		{{ template "header" . }}
+		<div id='body-wrapper'>
+			{{ if eq .PAGE "REGISTER" }}
+				{{ template "registerForm" . }}
+			{{ end }}
+			{{ if eq .PAGE "HOME" }}
+				{{ template "homePage" . }}
+			{{ end }}
+		</div>
+	</div>
 	<!-- Scripts -->
 	<script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
 	<script src='/js/common.js'></script>
+	{{ if eq .PAGE "HOME" }}
+		<script src='/js/market.js'></script>
+	{{ end }}
 	{{ if eq .PAGE "REGISTER" }}
 		<script src='/js/register.js'></script>
 	{{ end }}

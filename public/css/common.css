@@ -2,6 +2,12 @@ body {
 	background-color: rgb(241, 241, 241);
 }
 
+#body-wrapper {
+	position: absolute;
+	top: 50px;
+	width: 100%;
+}
+
 .form-error {
 	display: block;
 	color: rgb(190, 0, 0);
@@ -21,7 +27,7 @@ body {
 }
 
 #header-bar {
-	position: absolute;
+	position: fixed;
 	top: 0px;
 	left: 0px;
 	width: 100%;
@@ -29,14 +35,43 @@ body {
 	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 	background-color: white;
 	z-index: 100;
-	-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.035);
-	-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.035);
-	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.035);
+	-webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.035);
+	-moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.035);
+	box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.035);
 }
 
-#header-logo {
+.logo-no-login {
 	display: inline-block;
-	margin-left: 290px;
+	margin-left: 294px;
+	height: 50px;
+	line-height: 50px;
+	color: rgba(0, 0, 0, 0.75);
+	font-size: 1.45em;
+	font-family: fancy;
+	cursor: pointer;
+	pointer: hand;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
+.beta-no-login {
+	position: absolute;
+	top: 32px;
+	left: 600px;
+	color: rgb(0, 150, 200);
+	font-size: .6em;
+	font-family: GOOGLE;
+	cursor: pointer;
+	pointer: hand;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
+.logo-with-login {
+	display: inline-block;
+	margin-left: 250px;
 	height: 50px;
 	line-height: 50px;
 	color: rgba(0, 0, 0, 0.75);
@@ -59,10 +94,10 @@ body {
 
 }
 
-#beta-logo {
+.beta-with-login {
 	position: absolute;
 	top: 32px;
-	left: 590px;
+	left: 555px;
 	color: rgb(0, 150, 200);
 	font-size: .6em;
 	font-family: GOOGLE;
@@ -76,13 +111,12 @@ body {
 #header-menu-button {
 	position: absolute;
 	top: 0px;
-	left: 15px;
-	width: 30px;
-	height: 30px;
-	line-height: 30px;
+	left: 0px;
+	width: 50px;
+	height: 50px;
+	line-height: 50px;
 	text-align: center;
-	margin-top: 8px;
-	border: 1px solid rgba(0, 0, 0, 0.15);
+	background-color: rgba(0, 0, 0, 0.05)
 	border-radius: 2px;
 	cursor: pointer;
 	pointer: hand;
@@ -108,7 +142,7 @@ body {
 }
 
 #header-menu-button:hover {
-	border: 1px solid rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.05);
 	-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
 	-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
 	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
@@ -121,7 +155,7 @@ body {
 	top: 50px;
 	left: 0px;
 	padding: 5px 0px;
-	background-color: white;
+	background-color: rgb(250, 250, 250);
 	-webkit-box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
 	-moz-box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
@@ -143,26 +177,33 @@ body {
 }
 
 .header-menu-option:hover {
-	background-color: rgba(0, 0, 0, 0.075);
+	background-color: #C6E4F7;
 }
 
 #header-controls {
 	position: absolute;
+	display: inline-block;
 	top: 0px;
-	right: 55px;
-	padding-top: 13px;
+	right: 45px;
+	height: 50px;
 }
 
 .header-control-button {
-	font-family: GOOGLE;
-	font-size: .9em;
-	text-align: center;
+	display: inline-block;
+	float: left;
+	padding-left: 10px;
+	padding-right: 10px;
+	min-width: 50px;
+	height: 48px;
+	line-height: 48px;
+
 	color: rgb(80, 80, 80);
 	text-transform: capitalize;
-	background-color: white;
-	border: 1px solid rgba(0, 0, 0, 0.1275);
-	border-radius: 2px;
-	padding: 7px 10px;
+
+	font-family: GOOGLE;
+	font-size: .8em;
+	text-align: center;
+	
 	cursor: pointer;
 	pointer: hand;
 	-webkit-user-select: none;
@@ -170,13 +211,19 @@ body {
 	user-select: none;
 }
 
-.header-control-button:last-child {
-	margin-left: 15px;
+.header-control-button[data-active='true'] {
+	background-color: rgba(0, 0, 0, 0.03);
+	border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+}
+
+.header-control-button[data-active='false'] {
+	background-color: white;
+	border-bottom: 2px solid rgba(0, 0, 0, 0.0);
 }
 
 .header-control-button:hover {
 	color: black;
-	background-color: rgba(0, 0, 0, 0.1);
+	background-color: rgba(0, 0, 0, 0.05);
 	-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
 	-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
 	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
@@ -186,7 +233,7 @@ body {
 	display: none;
 	position: absolute;
 	top: 50px;
-	right: 135px;
+	right: 114.5px;
 	padding-top: 10px;
 	padding-left: 25px;
 	padding-right: 25px;
@@ -252,12 +299,13 @@ body {
 
 #notification-container {
 	position: absolute;
+	z-index: 100;
 	top: 50px;
 	right: 0px;
 	padding-top: 25px;
 	padding-right: 15px;
 	width: 400px;
-	height: 100vh;
+	height: calc(100vh - 75px);
 	pointer-events: none;
 }
 
@@ -270,6 +318,9 @@ body {
 	padding: 5px;
 	border-radius: 3px;
 	pointer-events: auto;
+	-webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
 
 .notification-text {
@@ -314,4 +365,337 @@ body {
 
 .low-alert-level .close-notification-button {
 	color: rgb(210, 0, 0);
+}
+
+/*
+<div class="center-col">
+	<div class='feed-post'>
+		<div class='post-hidden-info'>
+			<span class='info-post-id'>some-post-id</span>
+			<span class='info-post-timestamp'>some-timestamp</span>
+			<span class='info-post-owner'>some-username</span>
+			<span class='info-post-owner-id'>some-user-id</span>
+		</div>
+		<div class='inner-post-top'>
+			<span class='post-owner'>some-username</span>
+			<span class='post-timestamp'>some-timestamp</span>
+			<span class='post-description'>
+				This is a post description, this is for sale at low cost
+				hmu for more info
+			</span>
+			<div class='post-image-container'>
+				<img class='post-image primary-image' src='/img/landing_bg.jpg'>
+			</div>
+		</div>
+		<div class='post-action-bar'>
+			<span class='want-this'>Upvote</span>
+			<div class='post-action-menu-container'>
+				<img class='post-action-menu-button' src='/img/gear.png'>
+				<ul class='post-action-menu-list'>
+					<li>Subscribe</li>
+					<li>Mark suspect</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+*/
+
+.center-col {
+	position: absolute;
+	top: 0px;
+	left: 195px;
+	padding-top: 25px;
+	width: 595px;
+	margin-bottom: 175px;
+}
+
+.feed-post {
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	background-color: white;
+	font-family: GOOGLE;
+	margin-bottom: 15px;
+}
+
+.post-timestamp {
+}
+
+.post-hidden-info {
+	display: none;
+}
+
+.inner-post-top {
+	padding: 5px;
+}
+
+.post-owner {
+	display: inline-block;
+	color: rgb(0, 190, 255);
+	font-size: .9em;
+	font-family: GOOGLE;
+	cursor: pointer;
+	pointer: hand;
+}
+
+.post-timestamp {
+	display: inline-block;
+	font-size: .75em;
+	float: right;
+	color: rgb(130, 130, 130);
+	cursor: pointer;
+	pointer: hand;
+}
+
+.post-timestamp:hover {
+	color: rgba(0, 0, 0, 0);
+}
+
+.post-timestamp:hover:after {
+	content: attr(data-tooltip);
+	color: rgb(130, 130, 130);
+	text-decoration: underline;
+}
+
+.post-description {
+	display: block;
+	font-size: .9em;
+}
+
+.inner-post-center {
+	width: 99%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.post-action-bar {
+	padding: 10px 5px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
+.want-this-button {
+	display: inline-block;
+	padding: 6px 10px;
+	font-size: .8em;
+	color: #2b6dad;
+	background-color: rgb(225, 250, 255);
+	border: 1px solid rgba(100, 160, 200, 0.4);
+	border-radius: 3px;
+	cursor: pointer;
+	pointer: hand;
+}
+
+.want-this-button:hover {
+	border: 1px solid #2B6DAD
+}
+
+.want-this-divider {
+	padding: 0px 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	border-left: 1px solid #2b6dad;
+}
+
+.comment-button {
+	display: inline-block;
+	font-size: .8em;
+	border-radius: 3px;
+	margin-left: 10px;
+	color: rgb(110, 110, 110);
+	cursor: pointer;
+	pointer: hand;
+}
+
+.comment-button:hover {
+	text-decoration: underline;
+}
+
+.post-action-menu-container {
+	display: inline-block;
+	float: right;
+}
+
+.post-action-menu-button {
+	margin-top: -2px;
+	font-size: .8em;
+	padding: 7px;
+	cursor: pointer;
+	pointer: hand;
+}
+
+.post-action-menu-list {
+	margin: 0px;
+	padding: 0px;
+	display: none;
+	position: absolute;
+	right: 0px;
+	font-size: .9em;
+	list-style: none;
+	border: 1px solid rgb(175, 200, 255);
+	border-radius: 3px;
+	background-color: rgb(225, 250, 255);
+}
+
+.post-action-menu-list:before {
+	content: '';
+	display: block;
+	width: 0;
+	height: 0;
+	border-color: rgba(204,204,204,0);
+	border-left: 9px solid transparent;
+	border-right: 9px solid transparent;
+	border-bottom: 8px solid rgb(175, 200, 255);
+	border-width: 8px;
+	left: 14px;
+	margin-top: -9px;
+	margin-left: 133px;
+}
+
+.post-action-menu-list:after {
+	position: absolute;
+	content: '';
+	display: block;
+	width: 0;
+	height: 0;
+	border-color: rgba(204,204,204,0);
+	border-left: 9px solid transparent;
+	border-right: 9px solid transparent;
+	border-bottom: 8px solid rgb(225, 250, 255);
+	left: 14px;
+	top: 0px;
+	margin-top: -7px;
+	margin-left: 118.2px;
+}
+
+.post-action-menu-list li {
+	width: 150px;
+	padding: 5px 0px;
+	padding-left: 10px;
+	border-top: 1px solid rgba(175, 200, 255, 0.6);
+	color: #2b6dad;
+	cursor: pointer;
+	pointer: hand;
+}
+
+.post-action-menu-list li:first-child {
+	border-top: 1px solid rgba(175, 200, 255, 0);
+}
+
+.post-action-menu-list li:first-child:hover {
+	border-top: 1px solid rgb(175, 200, 255);
+}
+
+.post-action-menu-list li.hover:first-child:before {
+	position: absolute;
+	z-index: 1;
+	content: '';
+	width: 0;
+	height: 0;
+	border-color: rgba(204,204,204,0);
+	border-left: 9px solid transparent;
+	border-right: 9px solid transparent;
+	border-bottom: 8px solid rgb(175, 250, 255);
+	left: 14px;
+	top: 0px;
+	margin-top: -6px;
+	margin-left: 118.2px;
+}
+
+.post-action-menu-list li:hover {
+	background-color: rgb(175, 250, 255);
+}
+
+.post-image-container-background {
+	background-color: rgb(40, 40, 40);
+}
+
+.post-image-container {
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.post-image {
+	max-width: 500px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#post-form-container {
+	position: absolute;
+	top: 25px;
+	left: 75px;
+	box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+#post-form {
+	padding: 10px;
+}
+
+#post-form-description {
+	width: 425px;
+	height: 150px;
+	margin-bottom: 10px;
+	font-size: .9em;
+	font-family: GOOGLE;
+	background-color: white;
+	border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+#post-form-description:focus {
+	outline: none;
+}
+
+#post-form label {
+	display: block;
+	margin-bottom: 5px;
+	font-size: .75em;
+	font-weight: bold;
+	font-family: GOOGLE;
+}
+
+#post-form-description[contenteditable='true']:empty:not(:focus):before {
+	color: black;
+	content: 'Enter product description...';
+}
+
+#post-form-button {
+	float: right;
+	margin-top: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	width: 125px;
+	height: 32px;
+	font-size: .8em;
+	font-weight: bold;
+	font-family: GOOGLE;
+	border-radius: 2px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	background-color: rgb(100, 175, 225);
+}
+
+.photo-handler {
+	width: 100px;
+	height: 100px;
+	border: 2px dotted rgba(0, 0, 0, 0.4);
+	cursor: pointer;
+	pointer: hand;
+}
+
+.hidden-input {
+	display: none;
 }

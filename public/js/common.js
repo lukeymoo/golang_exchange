@@ -1,7 +1,33 @@
 'use strict';
 
+var state = {
+	LOGGED_IN: null,
+	USERNAME: null,
+	PAGE: null
+};
+
 $(function() {
 	var isLoginSubmitted = false;
+
+	// Get current page
+	state.PAGE = getCurrentPage();
+
+	// Get session variables
+	getSessionState(function(res) {
+		if(res.error) {
+			presentError(res.error);
+		} else {
+			if(res.LOGGED_IN) {
+				state.LOGGED_IN = true;
+				state.USERNAME = res.USERNAME;
+			} else {
+				if(getParam('err') == 'need_login') {
+					toggleHeaderLoginForm();
+					createAlert("Must login to view page", "medium");
+				}
+			}
+		}
+	});
 
 	var password = {
 		obj: $('#header-login-form #password'),
@@ -33,20 +59,23 @@ $(function() {
 			if(isHeaderLoginFormOpen()) {
 				closeHeaderLoginForm();
 			}
+			closeAllPostActionMenus();
 		}
 	});
 
-	/** Close forms on click outside element **/
+	/** Close forms/menus on click outside element **/
 	$(document).on('click', function(e) {
-		if(isHeaderMenuOpen()) {
-			if(!$(e.target).is($('#header-menu-button'))) {
-				closeHeaderMenu();
+		if(!$(e.target).is($('.notification')) && !$(e.target).closest($('#notification-container')).length) {
+			if(isHeaderMenuOpen()) {
+				if(!$(e.target).is($('#header-menu-button'))) {
+					closeHeaderMenu();
+				}
 			}
-		}
-		if(isHeaderLoginFormOpen()) {
-			if(!$(e.target).is($('#header-login-button'))
-				&& !$(e.target).closest($('#header-login-container')).length) {
-				closeHeaderLoginForm();
+			if(isHeaderLoginFormOpen()) {
+				if(!$(e.target).is($('#header-login-button'))
+					&& !$(e.target).closest($('#header-login-container')).length) {
+					closeHeaderLoginForm();
+				}
 			}
 		}
 	});
@@ -71,7 +100,11 @@ $(function() {
 				tryLogin(function(res) {
 					// On good login refresh page
 					if(res.Status == 'DX-OK') {
-						window.location.href = '/';
+						if(getParam('next')) {
+							window.location.href = getParam('next');
+						} else {
+							window.location.href = '/';
+						}
 					} else {
 						isLoginSubmitted = false;
 						// Show login button
@@ -84,7 +117,64 @@ $(function() {
 		}
 	});
 
+	/** Open menu on click **/
+	$(document).on('click', '.post-action-menu-button', function() {
+		togglePostActionMenu($(this));
+	});
+
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function getSessionState(callback) {
+	$.ajax({
+		type: 'GET',
+		url: '/api/session/state',
+		error: function(err) {
+			var res = {
+				error: ['Server error']
+			};
+			if(err.status == 0) {
+				res.error[0] = 'Server is currently down';
+			}
+			if(err.status == 404) {
+				res.error[0] = 'Something isn\'t programmed <br>right...';
+			}
+			callback(res);
+		}
+	}).done(function(res) {
+		callback(res);
+	});
+}
+
+function presentError(ee) {
+	createAlert(ee, 'high');
+	return;
+}
+
+function getCurrentPage() {
+	var title = $('title').html();
+	title = title.substring(5, title.length);
+	return title;
+}
 
 function tryLogin(callback) {
 	$.ajax({

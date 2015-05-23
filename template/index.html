@@ -1,15 +1,20 @@
 {{ define "header" }}
 <div id='header-bar'>
 	<span id='header-menu-button'>&#9776;</span>
-	<a href='/'><span id='header-logo'> DMV EXCHANGE </span></a>
-	<span id='beta-logo'>*BETA</span>
+	{{ if eq .LOGGED_IN "true" }}
+		<a href='/'><span id='header-logo' class='logo-with-login'> DMV EXCHANGE </span></a>
+		<span id='beta-logo' class='beta-with-login'>*BETA</span>
+	{{ else }}
+		<a href='/'><span id='header-logo' class='logo-no-login'> DMV EXCHANGE </span></a>
+		<span id='beta-logo' class='beta-no-login'>*BETA</span>
+	{{ end }}
 	<div id='header-menu'>
 		<a href='/'>
 			<span class='header-menu-option'>Home</span>
 		</a>
 		<span class='header-menu-option'>Submit advice</span>
 		{{ if eq .LOGGED_IN "true" }}
-			<span class='header-menu-option'>Account</span>
+			<a href="/account"><span class='header-menu-option'>Account</span></a>
 			<a href="/login/logout"><span class="header-menu-option">Logout</span></a>
 		{{ else }}
 			<a href='/register'>
@@ -17,29 +22,39 @@
 			</a>
 		{{ end }}
 	</div>
+	<!-- Header controls -->
 	{{ if eq .LOGGED_IN "true" }}
 		<div id='header-controls'>
-			<span class='header-control-button'>{{ .USERNAME }}</span>
+			<span data-active='false' class='header-control-button'>Create Post</span>
+			<span data-active='false' class='header-control-button'>Notifications</span>
+			<span data-active='false' class='header-control-button'>{{ .USERNAME }}</span>
 		</div>
 	{{ else }}
 	<div id='header-controls'>
-		<span id='header-login-button' class='header-control-button' data-state='closed'>Log in</span>
+		<span id='header-login-button' data-active='false' class='header-control-button' data-state='closed'>Log in</span>
 		<a href='/register'>
-			<span class='header-control-button'>Register</span>
+			{{ if eq .PAGE "REGISTER" }}
+				<span data-active='true' class='header-control-button'>Register</span>
+			{{ else }}
+				<span data-active='false' class='header-control-button'>Register</span>
+			{{ end }}
 		</a>
 	</div>
 	{{ end }}
+	<!-- End header controls -->
+	<!-- Login form -->
 	{{ if ne .LOGGED_IN "true" }}
 		<div id='header-login-container'>
 			<form id='header-login-form'>
 				<label>Username or email</label>
 				<input id='username-or-email' type='text' placeholder='Username or email'>
 				<input id='password' type='password' placeholder='Password'>
-				<span id='header-login-forgot'>forgot password?</span>
+				<a href="/forgot"><span id='header-login-forgot'>forgot password?</span></a>
 			</form>
 			<button id='header-login-form-button'>Log in</button>
 		</div>
 	{{ end }}
+	<!-- End login form -->
 </div>
 <div id='notification-container'></div>
 {{ end }}
@@ -88,11 +103,69 @@
 				<div id='tos-container' class='field'>
 					<input id='tos-checkbox' type='checkbox' value='I_AGREE' name='tos'>
 					<span id='tos-disclosure'>
-						I agree to the <a href='/h/policy.html'>policies</a> and the <a href='/h/policy.html'>Terms of Service</a>
+						I agree to the <a target="_blank" href='/h/policy.html'>policies</a> and the <a target="_blank" href='/h/policy.html'>Terms of Service</a>
 					</span>
 				</div>
 				<button id='signup-button'>Sign up</button>
 			</form>
 		</div>
+	</div>
+{{ end }}
+
+{{ define "homePage" }}
+	<div class="center-col">
+		<div id='post-form-container'>
+			<form id='post-form'>
+				<label>Post description</label>
+				<div id='post-form-description' contenteditable='true'></div>
+				<input type='file' name='photo1' class='post-image hidden-input'>
+				<input type='file' name='photo2' class='post-image hidden-input'>
+				<input type='file' name='photo3' class='post-image hidden-input'>
+				<input type='file' name='photo4' class='post-image hidden-input'>
+				<!-- Photo Handlers -->
+				<label>Add images</label>
+				<img src='/img/cross.png' class='photo-handler' data-for='photo1'>
+				<img src='/img/cross.png' class='photo-handler' data-for='photo2'>
+				<img src='/img/cross.png' class='photo-handler' data-for='photo3'>
+				<img src='/img/cross.png' class='photo-handler' data-for='photo4'>
+			</form>
+			<button id='post-form-button'>Create Post</button>
+		</div>
+	<!--
+		<div class='feed-post'>
+			<div class='post-hidden-info'>
+				<span class='info-post-id'>some-post-id2</span>
+				<span class='info-post-timestamp'>some-timestamp</span>
+				<span class='info-post-owner'>some-username</span>
+				<span class='info-post-owner-id'>some-user-id</span>
+			</div>
+			<div class='inner-post-top'>
+				<span class='post-owner'>some-username</span>
+				<span data-tooltip='May 22, 2015 1:32 PM' class='post-timestamp'>1:32 PM</span>
+				<span class='post-description'>
+					This is a post description, this is for sale at low cost
+					hmu for more info
+				</span>
+			</div>
+			<div class='inner-post-center'>
+				<div class='post-image-container-background'>
+					<div class='post-image-container'>
+						<img class='post-image primary-image' src='/img/landing_bg.jpg'>
+					</div>
+				</div>
+			</div>
+			<div class='post-action-bar'>
+				<span class='want-this-button'>Upvote</span>
+				<span class='comment-button'>Comment</span>
+				<div class='post-action-menu-container'>
+					<img class='post-action-menu-button' src='/img/gear.png'>
+					<ul data-state='closed' class='post-action-menu-list'>
+						<li>Subscribe</li>
+						<li>Mark suspect</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	-->
 	</div>
 {{ end }}
