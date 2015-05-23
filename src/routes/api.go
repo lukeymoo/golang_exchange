@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	models "../models"
+	//models "../models"
 	session "../session"
 	form "../forms"
 	json "encoding/json"
@@ -29,67 +29,29 @@ func ProcessLogin(res http.ResponseWriter, req *http.Request, params httprouter.
 		http.Redirect(res, req, "/", 302)
 		return
 	}
-	// Parse form
-	formError := req.ParseForm()
-	if formError != nil {
-		fmt.Println("Error authenticating => ", formError)
-		fmt.Fprint(res, "Server error please try again")
-		return
-	}
-	// Ensure proper form
-	if !form.ValidLoginForm(req) {
-		helper.ApiSend(res, "DX-REJECTED", "Invalid form, missing fields")
-		return
-	}
-	u_type := ""
-	// Is valid username or email
-	if form.ValidUsername(req.Form.Get("u")) {
-		u_type = "username"
-	} else if form.ValidEmail(req.Form.Get("u")) {
-		u_type = "email"
+
+	// Validate form
+	var loginForm = &form.LoginForm {
+		UsernameOrEmail: 	req.FormValue("u"),
+		Password: 			req.FormValue("p"),
 	}
 
-	// Invalid username or email
-	if u_type == "" {
-		helper.ApiSend(res, "DX-REJECTED", "Invalid username or email")
-		return
-	}
+	err := loginForm.ValidateForm()
 
-	// Validate password
-	if !form.ValidPassword(req.Form.Get("p")) {
-		helper.ApiSend(res, "DX-REJECTED", "Password must be 2-32 characters")
-		return
-	}
-
-	// If username was supplied
-	if u_type == "username" {
-			// And if the username + password combo worked, say DX-OK
-		if models.ValidUsernameLogin(req.Form.Get("u"), req.Form.Get("p")) {
-			var user models.User // placeholder
-			user = models.FindUserByUsername(req.Form.Get("u"))
-			session.SetSession(req.Form.Get("u"), user.Email, user.Id.String())
-		
-			helper.ApiSend(res, "DX-OK", "Logged in")
-			return
-		} else { // If invalid username + password combo
-			helper.ApiSend(res, "DX-REJECTED", "Invalid username/password combo")
+	// Send errors to user
+	if err != "" {
+		jsonResponse, err := json.Marshal(struct{Error string}{Error: err})
+		if err != nil {
+			fmt.Fprint(res, "Server Error")
 			return
 		}
-	} else { // If an email was supplied
-		// If the email + password combo worked, say DX-OK
-		if models.ValidEmailLogin(req.Form.Get("u"), req.Form.Get("p")) {
-			var user models.User // placeholder
-			user = models.FindUserByEmail(req.Form.Get("u"))
-			session.SetSession(user.Username, req.Form.Get("e"), user.Id.String())
-			
-			helper.ApiSend(res, "DX-OK", "Logged in")
-			return
-		} else { // If invalid email + password combo
-			helper.ApiSend(res, "DX-REJECTED", "Invalid email/password combo")
-			return
-		}
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(jsonResponse)
+		fmt.Println("sent")
+		return
 	}
 
+	fmt.Fprint(res, "done")
 	return
 }
 

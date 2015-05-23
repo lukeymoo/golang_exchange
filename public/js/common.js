@@ -98,6 +98,8 @@ $(function() {
 				$('#header-login-form-button').hide();
 				// Submit
 				tryLogin(function(res) {
+					console.log(res);
+					/*
 					// On good login refresh page
 					if(res.Status == 'DX-OK') {
 						if(getParam('next')) {
@@ -112,6 +114,7 @@ $(function() {
 						// Insert error after password field
 						generateFormError(res.Message, password.obj);
 					}
+					*/
 				});
 			}
 		}

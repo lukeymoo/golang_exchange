@@ -19,7 +19,12 @@ import (
 
 // DELETE LATER
 func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	fmt.Fprint(res, "This path does nothing lol!!")
+	var registerForm = &form.RegisterForm {
+		Firstname: "Lukeymoo",
+		Lastname: req.FormValue("l"),
+		Username: "FakeUsername!",
+	}
+	fmt.Fprint(res, "Errors => " + registerForm.CreateQuery())
 	return
 }
 
@@ -90,78 +95,32 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 		http.Redirect(res, req, "/register?err=logged_in", 302)
 		return
 	}
-	// Ensure we received all register form elements
-	formError := req.ParseForm()
-	if formError != nil {
-		fmt.Println("Error =>", formError)
-		fmt.Fprint(res, "Server error please try again")
-		return
-	}
 
-	// Ensure we recieved all form fields
-	if !form.ValidRegisterForm(req) {
-		http.Redirect(res, req, "/register?err=invalid_form", 302)
-		return
+	// Create form
+	var registerForm = &form.RegisterForm {
+		Firstname: 		req.FormValue("f"),
+		Lastname: 		req.FormValue("l"),
+		Username: 		req.FormValue("u"),
+		Password:		req.FormValue("p"),
+		PasswordAgain: 	req.FormValue("pa"),
+		Email:			strings.ToLower(req.FormValue("e")),
+		EmailAgain:		strings.ToLower(req.FormValue("ea")),
+		Zipcode:		req.FormValue("z"),
+		Gender:			req.FormValue("g"),
+		Tos:			req.FormValue("tos"),
 	}
 
 	err := ""
-	query := "&f=" + req.Form.Get("f") + "&l=" + req.Form.Get("l") +
-			"&u=" + req.Form.Get("u") + "&e=" + req.Form.Get("e") + "&z=" + req.Form.Get("z") +
-			"&g=" + req.Form.Get("g")
-	
-	// Validate names
-	if !form.ValidName(req.Form.Get("f")) {
-		err += "F|"
-	}
-	if !form.ValidName(req.Form.Get("l")) {
-		err += "L|"
-	}
-	// Validate Username
-	if !form.ValidUsername(req.Form.Get("u")) {
-		err += "U|"
-	}
-	// Password
-	if !form.ValidPassword(req.Form.Get("p")) {
-		err += "P|"
-	}
-	// Password again
-	if req.Form.Get("p") != req.Form.Get("pa") {
-		err += "PM|"
-	}
-	// Email
-	if !form.ValidEmail(req.Form.Get("e")) {
-		err += "E|"
-	}
-	// Email again
-	e_lower := strings.ToLower(req.Form.Get("e"))
-	ea_lower := strings.ToLower(req.Form.Get("ea"))
-	if e_lower != ea_lower {
-		err += "EM|"
-	}
-	// Zipcode
-	if !form.ValidZipcode(req.Form.Get("z")) {
-		err += "Z|"
-	}
-	// If errors redirect with error codes
-	if err != "" {
-		err = err[:len(err)-1]
-		http.Redirect(res, req, "/register?err=" + err + query, 302)
-		return
-	}
+	query := registerForm.CreateQuery()
 
-	// If username is in use, redirect with error
-	err = ""
-	if models.DoesUsernameExist(req.Form.Get("u")) {
-		err += "UIN|"
-	}
-	if models.DoesEmailExist(req.Form.Get("e")) {
-		err += "EIN|"
-	}
+	// Validate the form
+	err = registerForm.ValidateForm()
 	if err != "" {
 		err = err[:len(err)-1]
 		http.Redirect(res, req, "/register?err=" + err + query, 302)
 		return
 	}
+	
 	// Save the user, set session & redirect
 	var user models.User
 	user.Firstname 	= req.Form.Get("f")
