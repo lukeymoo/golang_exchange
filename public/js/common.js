@@ -380,6 +380,14 @@ function createAlert(string, alertLevel) {
 		"<span class='notification-text'>" + string +  "</span>" +
 	"</div>";
 	$('#notification-container').prepend(DOM);
+	// change bg color in 0.5 seconds
+	$('#notification-container .notification').each(function() {
+		if($(this).attr('data-id') == noticeID) {
+			$(this).fadeOut('medium', function() {
+				$(this).fadeIn('medium');
+			});
+		}
+	});
 	// Remove this notice after 6.5 seconds
 	setTimeout(function() {
 		$('#notification-container .notification').each(function() {

@@ -49,7 +49,7 @@ func main() {
 	router.GET("/account", routes.AccountPage) // Account settings page
 	router.GET("/login/logout", routes.Logout) // Logout
 
-	/****/
+	/** API Endpoints **/
 	router.GET("/api/session/state", routes.SessionState)
 
 	// Debug

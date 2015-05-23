@@ -36,9 +36,9 @@ $(function() {
 
 	/** Validating selection **/
 	$(document).on('change', '.post-image', function() {
-		// Get file from input
+		// Get file from hidden input field
 		var file = this.files[0];
-		// Get handler
+		// Get handler name & prepend with # to create JQuery ID selector
 		var handlerID = '#' + $(this).attr('data-for');
 		// If selection was cancelled, reset handler
 		if(!file) {
@@ -51,17 +51,28 @@ $(function() {
 			createAlert('Not a valid image extension `.' + getExtension(file.name) + '`', 'medium');
 			return;
 		}
+
 		/** Validate the image **/
 		loadImage(file, function(result) {
-			useValidator(handlerID, result)
+			if(!result) {
+				createAlert('An error occurred', 'medium');
+				// Reset handler
+				resetHandler(handlerID);
+				return false;
+			}
+			if(result == 'invalid') {
+				createAlert('Invalid file selected', 'medium');
+				resetHandler(handlerID);
+				return false;
+			}
+			if(result == 'small') {
+				createAlert('Image must be at least 100x100', 'medium');
+				resetHandler(handlerID);
+				return false;
+			}
+			$(handlerID).attr('src', result);
+			showNextImageHandler();
 		});
-	});
-
-	/** Post-form image validator error detection **/
-	$('#post-form-validator').on('error', function() {
-		resetImageValidator();
-		// Reset handler
-		createAlert('Not a valid image', 'medium');
 	});
 
 });
@@ -73,47 +84,99 @@ $(function() {
 
 
 
-/**** INCOMPLETE ****/
 
 
 
-/** Returns the photo handler ( displays currently selected image ) to default `cross` image **/
-function resetHandler(id) {
+
+
+
+
+
+
+
+
+
+function showNextImageHandler() {
+	// Iterates through all photo-handlers and ensures they're placed in
+	// chronological order
+	var i = 1;
+	var spawned = false;
+	$('.photo-handler').each(function() {
+		// If inactive & spawned is false show it
+		if($(this).attr('data-active') == 'false' && !spawned) {
+			$(this).attr('data-active', 'true');
+			spawned = true;
+		}
+		// Ensure the handlers are in order
+		if(i != parseInt($(this).attr('id').split('photo-handler')[1])) {
+			// If they're not equal, its out of order..Remove it and insert where correct
+			var placement = parseInt($(this).attr('id').split('photo-handler')[1]);
+			var handlerDOM = $(this)[0].outerHTML;
+			$(this).remove();
+			switch(placement) {
+				case 1:
+					// Insert before photo2
+					$(handlerDOM).insertBefore($('#photo-handler2'));
+					break;
+				case 2:
+					// Insert after photo1
+					$(handlerDOM).insertAfter($('#photo-handler1'));
+					break;
+				case 3:
+					// Insert after photo2
+					$(handlerDOM).insertAfter($('#photo-handler2'));
+					break;
+				case 4:
+					// Insert after photo3
+					$(handlerDOM).insertAfter($('#photo-handler3'));
+					break;
+			}
+		}
+		i++;
+	});
 	return;
 }
 
+function organizeHandlers() {
+	// Iterate through
+	return;
+}
 
-
-
-
-
-
-/**** INCOMPLETE ****/
-
-
+/** Loads an image and ensures it can load **/
 function loadImage(file, callback) {
 	var reader = new FileReader();
-
 	reader.onerror = function() {
-		callback(false);
+		callback(null);
 	};
-
-
 	reader.onloadend = function() {
-		callback(reader.result);
+
+		// Create image
+		var pre = new Image();
+		if(reader.result == 'data:') {
+			callback('invalid');
+			return;
+		}
+		pre.onerror = function() {
+			callback(null);
+			return;
+		};
+		pre.onload = function() {
+
+			// Ensure image width x height at minimum is 100x100
+			if(parseInt(pre.width) < 100 || parseInt(pre.height) < 100) {
+				callback('small');
+				return;
+			}
+
+			callback(reader.result);
+			return;
+		};
+		pre.src = reader.result;
+		return;
 	};
-
 	reader.readAsDataURL(file);
-
 	return;
 }
-
-
-
-
-
-
-
 
 /** Returns the extension as a string **/
 function getExtension(filename) {
@@ -130,19 +193,35 @@ function validImageExt(filename) {
 			|| ext == 'gif' || ext == 'tiff') ? true : false;
 }
 
-function useValidator(handlerID, url) {
-	$('#post-form-validator').attr('data-for', handlerID);
-	$('#post-form-validator').attr('src', result);
+function resetImageInput(inputNoHash) {
+	var inputDOM = $('#' + inputNoHash)[0].outerHTML;
+	var placement = parseInt($('#' + inputNoHash).attr('data-for').split('photo-handler')[1]);
+	$('#' + inputNoHash).remove();
+	switch(placement) {
+		case 1:
+			// Insert before photo2
+			$(inputDOM).insertBefore($('#photo2'));
+			break;
+		case 2:
+			// Insert after photo1
+			$(inputDOM).insertAfter($('#photo1'));
+			break;
+		case 3:
+			// Insert after photo2
+			$(inputDOM).insertAfter($('#photo2'));
+			break;
+		case 4:
+			// Insert after photo3
+			$(inputDOM).insertAfter($('#photo3'));
+			break;
+	}
 	return;
 }
 
-function resetImageValidator() {
-	/** Reset handler & input **/
-	$('#post-form-validator').attr('src', '/img/cross.png');
-	return;
-}
-
-function resetImageInput(handlerID) {
+/** Returns the photo handler ( displays currently selected image ) to default `cross` image **/
+function resetHandler(id) {
+	$(id).attr('src', '/img/cross.png');
+	resetImageInput($(id).attr('data-for'));
 	return;
 }
 
