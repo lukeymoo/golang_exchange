@@ -298,7 +298,7 @@ body {
 }
 
 #notification-container {
-	position: absolute;
+	position: fixed;
 	z-index: 100;
 	top: 50px;
 	right: 0px;

@@ -22,6 +22,7 @@ $(function() {
 		Code				Error Meaning
 		-----------			--------------
 		invalid_form		Missing form field
+		logged_in			Cannot register while logged in
 		UIN					Username in use
 		F 					Firstname invalid
 		L 					Lastname invalid
@@ -37,19 +38,21 @@ $(function() {
 	var errors = getParam('err');
 	if(errors) {
 
-		/** Fill in the fields **/
-		fname.obj.val(getParam('f'));
-		lname.obj.val(getParam('l'));
-		username.obj.val(getParam('u'));
-		email.obj.val(getParam('e'));
-		emailAgain.obj.val(getParam('e'));
-		zipcode.obj.val(getParam('z'));
-		// Set gender
-		var gen = document.getElementById('gender-select');
-		for(var i = 0; i < gen.options.length; i++) {
-			if(gen.options[i].getAttribute('value') == getParam('g')) {
-				gen.selectedIndex = i;
-				break;
+		if(errors[0] != 'logged_in') {
+			/** Fill in the fields **/
+			fname.obj.val(getParam('f'));
+			lname.obj.val(getParam('l'));
+			username.obj.val(getParam('u'));
+			email.obj.val(getParam('e'));
+			emailAgain.obj.val(getParam('e'));
+			zipcode.obj.val(getParam('z'));
+			// Set gender
+			var gen = document.getElementById('gender-select');
+			for(var i = 0; i < gen.options.length; i++) {
+				if(gen.options[i].getAttribute('value') == getParam('g')) {
+					gen.selectedIndex = i;
+					break;
+				}
 			}
 		}
 
@@ -148,8 +151,7 @@ function generateSignupError(string, field) {
 }
 
 function validateName(string) {
-	return (/^[A-Za-z]+(([\'-])?[A-Za-z]+$)/.test(string)
-		&& string.length >= 2 && string.length =< 32) ? true : false;
+	return (/^[A-Za-z]+(([\'-])?[A-Za-z]+$)/.test(string) && string.length >= 2 && string.length <= 32) ? true : false;
 }
 
 function validateZipcode(string) {
@@ -158,17 +160,17 @@ function validateZipcode(string) {
 
 function validateEmail(string) {
 	return (/^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/.test(string)
-		&& string.length =< 64) ? true : false;
+		&& string.length <= 64) ? true : false;
 }
 
 function validateUsername(string) {
 	return (/^[A-Za-z0-9_]+$/.test(string)
 		&& string.length >= 2
-		&& string.length =< 16) ? true : false;
+		&& string.length <= 16) ? true : false;
 }
 
 function validatePassword(string) {
-	return (string.length >= 2 && string.length =< 32) ? true : false;
+	return (string.length >= 2 && string.length <= 32) ? true : false;
 }
 
 function validSignup() {
