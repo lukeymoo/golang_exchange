@@ -143,7 +143,7 @@ $(function() {
 
 
 
-
+/** Querys the server for the current session USERNAME & LOGGED_IN variables **/
 function getSessionState(callback) {
 	$.ajax({
 		type: 'GET',
@@ -165,17 +165,20 @@ function getSessionState(callback) {
 	});
 }
 
+/** Presents error from request **/
 function presentError(ee) {
 	createAlert(ee, 'high');
 	return;
 }
 
+/** Returns the current page title as string **/
 function getCurrentPage() {
 	var title = $('title').html();
 	title = title.substring(5, title.length);
 	return title;
 }
 
+/** Querys server with supplied login credits & attempts validation **/
 function tryLogin(callback) {
 	$.ajax({
 		type: 'POST',
@@ -202,6 +205,7 @@ function tryLogin(callback) {
 	});
 }
 
+/** Opens/Closes header action menu **/
 function toggleHeaderMenu() {
 	if(isHeaderMenuOpen()) {
 		closeHeaderMenu();
@@ -211,22 +215,26 @@ function toggleHeaderMenu() {
 	return;
 }
 
+/** Opens header action menu **/
 function openHeaderMenu() {
 	$('#header-menu-button').attr('data-state', 'opened');
 	$('#header-menu').show();
 	return;
 }
 
+/** Closes header action menu **/
 function closeHeaderMenu() {
 	$('#header-menu-button').attr('data-state', 'closed');
 	$('#header-menu').hide();
 	return;
 }
 
+/** Returns true/false value if header action menu is opened/closed **/
 function isHeaderMenuOpen() {
 	return ($('#header-menu-button').attr('data-state') == 'opened') ? true : false;
 }
 
+/** Opens/Closes header login form **/
 function toggleHeaderLoginForm() {
 	if(isHeaderLoginFormOpen()) {
 		closeHeaderLoginForm();
@@ -236,10 +244,7 @@ function toggleHeaderLoginForm() {
 	return;
 }
 
-function isHeaderLoginFormOpen() {
-	return ($('#header-login-button').attr('data-state') == 'opened') ? true : false;
-}
-
+/** Opens header login form **/
 function openHeaderLoginForm() {
 	$('#header-login-button').attr('data-state', 'opened');
 	$('#header-login-container').show();
@@ -247,11 +252,18 @@ function openHeaderLoginForm() {
 	return;
 }
 
+/** Closes Header **/
 function closeHeaderLoginForm() {
 	$('#header-login-button').attr('data-state', 'closed');
 	$('#header-login-container').hide();
 }
 
+/** Returns true/false value if header login form is opened/closed **/
+function isHeaderLoginFormOpen() {
+	return ($('#header-login-button').attr('data-state') == 'opened') ? true : false;
+}
+
+/** Returns URi GET variable value as string **/
 function getParam(sParam) {
 	var sPageURL = window.location.search.substring(1);
 	var sURLVariables = sPageURL.split('&');
@@ -263,15 +275,18 @@ function getParam(sParam) {
 	}
 }
 
+/** Returns input border to default color/opacity **/
 function goodStyle(obj) {
 	$(obj).css('border', '1px solid rgba(0, 0, 0, 0.15)');
 }
 
+/** Colors input border to red to indicate errors **/
 function badStyle(obj) {
 	$(obj).css('border', '1px solid rgb(175, 0, 0)');
 	return;
 }
 
+/** Determines if the login form has all fields needed to attempt login/validation **/
 function validLoginForm() {
 	var login_username = {obj:$('#header-login-form #username-or-email'), val:$('#header-login-form #username-or-email').val()};
 	var login_password = {obj:$('#header-login-form #password'), val:$('#header-login-form #password').val()}
@@ -303,6 +318,7 @@ function validLoginForm() {
 	return status;
 }
 
+/** Removes all generated errors in login form **/
 function clearLoginErrors() {
 	$('#header-login-form .form-error').each(function() {
 		$(this).remove();
@@ -310,6 +326,8 @@ function clearLoginErrors() {
 	return;
 }
 
+
+/** Returns all input border colors/opacity to default in login form **/
 function resetLoginStyles() {
 	$('#header-login-form input').each(function() {
 		goodStyle($(this));
@@ -317,26 +335,31 @@ function resetLoginStyles() {
 	return;
 }
 
+/** Generates an error and appends it to specified object/field **/
 function generateFormError(string, obj) {
 	$("<span class='form-error'>" + string + "</span>").insertAfter(obj);
 	return;
 }
 
+/** Returns true/false if supplied string can be a valid username **/
 function validUsername(string) {
 	return (/^[A-Za-z0-9_]+$/.test(string)
 		&& string.length >= 2
 		&& string.length < 16) ? true : false;
 }
 
+/** Returns true/false if supplied string can be a valid email address **/
 function validEmail(string) {
 	return (/^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/.test(string)
 		&& string.length < 64) ? true : false;
 }
 
+/** Returns true/false if supplied string can be a valid password **/
 function validPassword(string) {
 	return (string.length > 2 && string.length < 32) ? true : false;
 }
 
+/** Creates a pop-up notification on users screen with specified message with notice type **/
 function createAlert(string, alertLevel) {
 	alertLevel = alertLevel || 'low';
 	var classLevel = '';
@@ -371,6 +394,7 @@ function createAlert(string, alertLevel) {
 	return;
 }
 
+/** Removes a specified notification from users screen **/
 function removeAlert(id) {
 	$('#notification-container .notification').each(function() {
 		if($(this).attr('data-id') == id) {

@@ -116,18 +116,19 @@
 	<div class="center-col">
 		<div id='post-form-container'>
 			<form id='post-form'>
+				<img id='post-form-validator' src='/img/cross.png'>
 				<label>Post description</label>
 				<div id='post-form-description' contenteditable='true'></div>
-				<input type='file' name='photo1' class='post-image hidden-input'>
-				<input type='file' name='photo2' class='post-image hidden-input'>
-				<input type='file' name='photo3' class='post-image hidden-input'>
-				<input type='file' name='photo4' class='post-image hidden-input'>
+				<input type='file' data-for='photo-handler1' id='photo1' name='photo1' class='post-image hidden-input'>
+				<input type='file' data-for='photo-handler2' id='photo2' name='photo2' class='post-image hidden-input'>
+				<input type='file' data-for='photo-handler3' id='photo3' name='photo3' class='post-image hidden-input'>
+				<input type='file' data-for='photo-handler4' id='photo4' name='photo4' class='post-image hidden-input'>
 				<!-- Photo Handlers -->
 				<label>Add images</label>
-				<img src='/img/cross.png' class='photo-handler' data-for='photo1'>
-				<img src='/img/cross.png' class='photo-handler' data-for='photo2'>
-				<img src='/img/cross.png' class='photo-handler' data-for='photo3'>
-				<img src='/img/cross.png' class='photo-handler' data-for='photo4'>
+				<img src='/img/cross.png' id='photo-handler1' class='photo-handler' data-for='photo1' data-active='true'>
+				<img src='/img/cross.png' id='photo-handler2' class='photo-handler' data-for='photo2' data-active='false'>
+				<img src='/img/cross.png' id='photo-handler3' class='photo-handler' data-for='photo3' data-active='false'>
+				<img src='/img/cross.png' id='photo-handler4' class='photo-handler' data-for='photo4' data-active='false'>
 			</form>
 			<button id='post-form-button'>Create Post</button>
 		</div>

@@ -646,6 +646,10 @@ body {
 	padding: 10px;
 }
 
+#post-form-validator {
+	display: none;
+}
+
 #post-form-description {
 	width: 425px;
 	height: 150px;
@@ -670,7 +674,7 @@ body {
 
 #post-form-description[contenteditable='true']:empty:not(:focus):before {
 	color: black;
-	content: 'Enter product description...';
+	content: 'Enter a description...';
 }
 
 #post-form-button {
@@ -691,9 +695,19 @@ body {
 .photo-handler {
 	width: 100px;
 	height: 100px;
-	border: 2px dotted rgba(0, 0, 0, 0.4);
+	border-radius: 3px;
+	border: 2px dotted rgba(0, 0, 0, .7);
+	opacity: 0.5;
 	cursor: pointer;
 	pointer: hand;
+}
+
+.photo-handler[data-active='true'] {
+	display: inline-block;
+}
+
+.photo-handler[data-active='false'] {
+	display: none;
 }
 
 .hidden-input {
