@@ -62,14 +62,7 @@ func main() {
 
 	// Start listening
 	fmt.Println("Server listening on port " + port)
-	http.ListenAndServe(port, Log(router))
+	log.Fatal(http.ListenAndServe(port, router));
 
 	return
-}
-
-func Log(handler http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
-	handler.ServeHTTP(w, r)
-    })
 }
