@@ -35,19 +35,17 @@ func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params)
 	Display home page
 */
 func IndexPage(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	var context session.TemplateContext
-	
-	context.TITLE = "Home"
-	context.PAGE = "HOME"
-	
 	var wg sync.WaitGroup
-
 	wg.Add(1)
-	
+	var context session.TemplateContext
+
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		session.CreateSessionObj(&context);
 	}(&wg)
+
+	context.TITLE = "Home"
+	context.PAGE = "HOME"
 
 	tmp, err := template.ParseFiles("template/layout/master.html", "template/index.html")
 	if err != nil {
