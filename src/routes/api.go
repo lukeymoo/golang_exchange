@@ -10,11 +10,12 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	//models "../models"
+	models "../models"
 	session "../session"
 	form "../forms"
 	json "encoding/json"
 	helper "../helper"
+	"strings"
 )
 
 /**
@@ -30,13 +31,14 @@ func ProcessLogin(res http.ResponseWriter, req *http.Request, params httprouter.
 		return
 	}
 
-	// Validate form
+	
 	var loginForm = &form.LoginForm {
-		UsernameOrEmail: 	req.FormValue("u"),
+		UsernameOrEmail: 	strings.ToLower(req.FormValue("u")),
 		Password: 			req.FormValue("p"),
 	}
 
-	err := loginForm.ValidateForm()
+	// Validate form
+	idType, err := loginForm.ValidateForm()
 
 	// Send errors to user
 	if err != "" {
@@ -47,11 +49,43 @@ func ProcessLogin(res http.ResponseWriter, req *http.Request, params httprouter.
 		}
 		res.Header().Set("Content-Type", "application/json")
 		res.Write(jsonResponse)
-		fmt.Println("sent")
 		return
 	}
 
-	fmt.Fprint(res, "done")
+	// try to login
+	err = loginForm.TryLogin()
+	if err != "" {
+		err = err[:len(err)-1]
+		jsonResponse, err := json.Marshal(struct{Error string}{Error: err})
+		if err != nil {
+			fmt.Fprint(res, "Server error")
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(jsonResponse)
+		return
+	}
+
+	// Fetch account details
+	var userAccount models.User
+	if idType == "username" {
+		userAccount = models.FindUserByUsername(loginForm.UsernameOrEmail)
+	} else if idType == "email" {
+		userAccount = models.FindUserByEmail(loginForm.UsernameOrEmail)
+	}
+
+	// Good login set session variables and send DX-OK
+	jsonResponse, errR := json.Marshal(struct{
+			Status string
+			Message string
+		}{Status: "DX-OK", Message: "Logged in"})
+	if errR != nil {
+		fmt.Fprint(res, "Server error")
+		return
+	}
+	session.SetSession(userAccount.Username, userAccount.Email, userAccount.Id.String())
+	res.Header().Set("Content-Type", "application/json")
+	res.Write(jsonResponse)
 	return
 }
 

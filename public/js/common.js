@@ -99,22 +99,20 @@ $(function() {
 				// Submit
 				tryLogin(function(res) {
 					console.log(res);
-					/*
-					// On good login refresh page
-					if(res.Status == 'DX-OK') {
+					// If no errors, valid login
+					if(res.Error) {
+						isLoginSubmitted = false;
+						// Show login button
+						$('#header-login-form-button').show();
+						// Insert error after password field
+						evalError(res.Error, password.obj);
+					} else {
 						if(getParam('next')) {
 							window.location.href = getParam('next');
 						} else {
 							window.location.href = '/';
 						}
-					} else {
-						isLoginSubmitted = false;
-						// Show login button
-						$('#header-login-form-button').show();
-						// Insert error after password field
-						generateFormError(res.Message, password.obj);
 					}
-					*/
 				});
 			}
 		}
@@ -335,6 +333,47 @@ function resetLoginStyles() {
 	$('#header-login-form input').each(function() {
 		goodStyle($(this));
 	});
+	return;
+}
+
+/** Evaluates an error code and generates user friendly version **/
+function evalError(errors, obj) {
+	// Clear error fields
+	clearLoginErrors();
+	var humanReadable = "";
+	var errArr = errors.split("|");
+	var stop = false;
+	for(var err in errArr) {
+		if(!stop) {
+			switch(errArr[err]) {
+				case "U_invalid_login":
+					humanReadable = "Invalid username/password combo";
+					stop = true;
+					break;
+				case "E_invalid_login":
+					humanReadable = "Invalid email/password combo";
+					stop = true;
+					break;
+				case 'invalid_form':
+					humanReadable = "Form was missing fields";
+					stop = true;
+					break;
+				case 'U':
+					humanReadable += "Invalid username<br>";
+					break;
+				case 'E':
+					humanReadable += "Invalid Email<br>";
+					break;
+				case 'P':
+					humanReadable += "Invalid password<br>";
+					break;
+				default:
+					humanReadable += "Unknown error occurred<br>";
+					break;
+			}
+		}
+	}
+	generateFormError(humanReadable, obj);
 	return;
 }
 

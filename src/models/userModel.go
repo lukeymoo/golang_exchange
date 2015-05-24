@@ -47,48 +47,6 @@ func SaveUser(user User) (bool) {
 }
 
 /**
-	Determines if a given email + password combination exists
-	Returns boolean value
-*/
-func ValidEmailLogin(email string, password string) (bool) {
-	email_formatted := strings.ToLower(email)
-	password_formatted := helper.MD5String(password)
-	count, err := db.Conn.DB("dmvexchange").C("USERS").Find(bson.M {
-		"email": email_formatted,
-		"pwd": password_formatted,
-	}).Count()
-	if err != nil {
-		fmt.Println("[-] MongoDB error => ", err)
-		return false
-	}
-	if count > 0 {
-		return true
-	}
-	return false
-}
-
-/**
-	Determines if a given username + password combination exists
-	Returns boolean value
-*/
-func ValidUsernameLogin(username string, password string) (bool) {
-	username_formatted := strings.ToLower(username)
-	password_formatted := helper.MD5String(password)
-	count, err := db.Conn.DB("dmvexchange").C("USERS").Find(bson.M {
-		"username": username_formatted,
-		"pwd": password_formatted,
-	}).Count()
-	if err != nil {
-		fmt.Println("[-] MongoDB error => ", err)
-		return false
-	}
-	if count > 0 {
-		return true
-	}
-	return false
-}
-
-/**
 	Determines if a username has been registered
 	Returns boolean value
 */

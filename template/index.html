@@ -125,9 +125,13 @@
 				<input type='file' data-for='photo-handler4' id='photo4' name='photo4' class='post-image hidden-input'>
 				<!-- Photo Handlers -->
 				<label>Add images</label>
-				<img src='/img/cross.png' id='photo-handler2' class='photo-handler' data-for='photo2' data-active='false'>
+				<span data-active='false' id='photo-remove1' class='photo-remover' data-for='#photo-handler1' >&times;</span>
 				<img src='/img/cross.png' id='photo-handler1' class='photo-handler' data-for='photo1' data-active='true'>
+				<span data-active='false' id='photo-remove2' class='photo-remover' data-for='#photo-handler1' >&times;</span>
+				<img src='/img/cross.png' id='photo-handler2' class='photo-handler' data-for='photo2' data-active='false'>
+				<span data-active='false' id='photo-remove3' class='photo-remover' data-for='#photo-handler1' >&times;</span>
 				<img src='/img/cross.png' id='photo-handler3' class='photo-handler' data-for='photo3' data-active='false'>
+				<span data-active='false' id='photo-remove4' class='photo-remover' data-for='#photo-handler1' >&times;</span>
 				<img src='/img/cross.png' id='photo-handler4' class='photo-handler' data-for='photo4' data-active='false'>
 			</form>
 			<button id='post-form-button'>Create Post</button>

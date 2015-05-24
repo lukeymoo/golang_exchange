@@ -1,10 +1,13 @@
 package forms
 
 import (
-	"net/http"
+	"fmt"
+	db "../database"
+	"gopkg.in/mgo.v2/bson"
 	"regexp"
 	"log"
 	"../models"
+	helper "../helper"
 )
 
 type RegisterForm struct {
@@ -130,9 +133,34 @@ func (form *RegisterForm) IsEmpty() (bool) {
 
 
 /** API Response **/
-func (form *LoginForm) ValidateForm() (string) {
+func (form *LoginForm) ValidateForm() (string, string) {
 	err := ""
-	// determine if the user supplied a username or an email
+
+	// Ensure the form is not empty
+	if !form.IsComplete() {
+		return "", "invalid_form"
+	}
+
+	// Ensure the user supplied a username or email
+	idType := form.GetIDType()
+	
+	if idType == "" {
+		err += "U|"
+	}
+
+	// Ensure the user supplied a valid password
+	if !ValidPassword(form.Password) {
+		err += "P|"
+	}
+
+	if err != "" {
+		err = err[:len(err)-1]
+	}
+
+	return idType, err
+}
+
+func (form *LoginForm) GetIDType() (string) {
 	idType := ""
 	if ValidUsername(form.UsernameOrEmail) {
 		idType = "username"
@@ -141,24 +169,68 @@ func (form *LoginForm) ValidateForm() (string) {
 			idType = "email"
 		}
 	}
-
-	if idType == "" {
-		err += "U|"
-	}
-
-	// validate password
-	if !ValidPassword(form.Password) {
-		err += "P|"
-	}
-
-	return err
+	return idType
 }
 
-func (form *LoginForm) IsEmpty() (bool) {
+/** Returns true/false if login form is missing any fields **/
+func (form *LoginForm) IsComplete() (bool) {
 	if form.UsernameOrEmail == "" {
-		return true
+		return false
 	}
 	if form.Password == "" {
+		return false
+	}
+	return true
+}
+
+func (form *LoginForm) TryLogin() (string) {
+	idType := form.GetIDType()
+
+	if idType == "username" {
+		if !form.ValidUsernameLogin() {
+			return "U_invalid_login|"
+		}
+	} else if idType == "email" {
+		if !form.ValidEmailLogin() {
+			return "E_invalid_login|"
+		}
+	}
+	return ""
+}
+
+/**
+	Determines if a given email + password combination exists
+	Returns boolean value
+*/
+func (form *LoginForm) ValidEmailLogin() (bool) {
+	count, err := db.Conn.DB("dmvexchange").C("USERS").Find(bson.M {
+		"email": form.UsernameOrEmail,
+		"pwd": helper.MD5String(form.Password),
+	}).Count()
+	if err != nil {
+		fmt.Println("[-] MongoDB error => ", err)
+		return false
+	}
+	if count > 0 {
+		return true
+	}
+	return false
+}
+
+/**
+	Determines if a given username + password combination exists
+	Returns boolean value
+*/
+func (form *LoginForm) ValidUsernameLogin() (bool) {
+	count, err := db.Conn.DB("dmvexchange").C("USERS").Find(bson.M {
+		"username": form.UsernameOrEmail,
+		"pwd": helper.MD5String(form.Password),
+	}).Count()
+	if err != nil {
+		fmt.Println("[-] MongoDB error => ", err)
+		return false
+	}
+	if count > 0 {
 		return true
 	}
 	return false
@@ -167,15 +239,12 @@ func (form *LoginForm) IsEmpty() (bool) {
 
 
 
-func ValidLoginForm(req *http.Request) (bool) {
-	if req.Form.Get("u") == "" {
-		return false
-	}
-	if req.Form.Get("p") == "" {
-		return false
-	}
-	return true
-}
+
+
+
+
+
+
 
 // Validate Name
 func ValidName(name string) (bool) {
