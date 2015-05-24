@@ -98,7 +98,6 @@ $(function() {
 				$('#header-login-form-button').hide();
 				// Submit
 				tryLogin(function(res) {
-					console.log(res);
 					// If no errors, valid login
 					if(res.Error) {
 						isLoginSubmitted = false;

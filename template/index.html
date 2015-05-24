@@ -119,20 +119,18 @@
 				<img id='post-form-validator' src='/img/cross.png'>
 				<label>Post description</label>
 				<div id='post-form-description' contenteditable='true'></div>
-				<input type='file' data-for='photo-handler1' id='photo1' name='photo1' class='post-image hidden-input'>
-				<input type='file' data-for='photo-handler2' id='photo2' name='photo2' class='post-image hidden-input'>
-				<input type='file' data-for='photo-handler3' id='photo3' name='photo3' class='post-image hidden-input'>
-				<input type='file' data-for='photo-handler4' id='photo4' name='photo4' class='post-image hidden-input'>
-				<!-- Photo Handlers -->
+				<input type='file' data-for='#handler-container1' id='photo1' name='photo1' class='post-image hidden-input'>
+				<input type='file' data-for='#handler-container2' id='photo2' name='photo2' class='post-image hidden-input'>
+				<input type='file' data-for='#handler-container3' id='photo3' name='photo3' class='post-image hidden-input'>
+				<input type='file' data-for='#handler-container4' id='photo4' name='photo4' class='post-image hidden-input'>
 				<label>Add images</label>
-				<span data-active='false' id='photo-remove1' class='photo-remover' data-for='#photo-handler1' >&times;</span>
-				<img src='/img/cross.png' id='photo-handler1' class='photo-handler' data-for='photo1' data-active='true'>
-				<span data-active='false' id='photo-remove2' class='photo-remover' data-for='#photo-handler1' >&times;</span>
-				<img src='/img/cross.png' id='photo-handler2' class='photo-handler' data-for='photo2' data-active='false'>
-				<span data-active='false' id='photo-remove3' class='photo-remover' data-for='#photo-handler1' >&times;</span>
-				<img src='/img/cross.png' id='photo-handler3' class='photo-handler' data-for='photo3' data-active='false'>
-				<span data-active='false' id='photo-remove4' class='photo-remover' data-for='#photo-handler1' >&times;</span>
-				<img src='/img/cross.png' id='photo-handler4' class='photo-handler' data-for='photo4' data-active='false'>
+				<!-- Photo Handlers -->
+				<div id='preview-container'>
+					<div id='handler-container1' class='handler-container' data-visible='true' data-active='false'>
+						<span data-for='#photo-handler1' class='photo-remover'>&times;</span>
+						<img data-for='#photo1' id='photo-handler1' class='photo-handler' src='/img/cross.png'>
+					</div>
+				</div>
 			</form>
 			<button id='post-form-button'>Create Post</button>
 		</div>

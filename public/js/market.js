@@ -31,54 +31,72 @@ $(function() {
 
 	/** Selection of images **/
 	$(document).on('click', '.photo-handler', function() {
-		$('#' + $(this).attr('data-for')).click();
+		$($(this).attr('data-for')).click();
 	});
 
 	/** Validating selection **/
 	$(document).on('change', '.post-image', function() {
-		// Get file from hidden input field
-		var file = this.files[0];
-		// Get handler name & prepend with # to create JQuery ID selector
-		var handlerID = '#' + $(this).attr('data-for');
-		// If selection was cancelled, reset handler
+		var file = this.files[0]; // Get file
+		var inputID = '#' + $(this).attr('id'); // input field id
+		var handlerContainer = $(this).attr('data-for');
+
+		// If user cancelled selection, restore handler ( input field is already empty )
 		if(!file) {
-			// Grab data-for & place `#` before it
-			resetHandler(handlerID);
-			return;
-		}
-		// if bad extension reset handler & input
-		if(!validImageExt(file.name)) {
-			createAlert('Not a valid image extension `.' + getExtension(file.name) + '`', 'medium');
-			return;
+			// Redraw handlers
+			restoreHandler(handlerContainer);
 		}
 
-		/** Validate the image **/
-		loadImage(file, function(result) {
-			if(!result) {
-				createAlert('An error occurred', 'medium');
-				// Reset handler
-				resetHandler(handlerID);
-				return false;
+		/**
+			If invalid extension, restore input field & restore handler
+		*/
+		if(!validImageExt(getExtension(file.name))) {
+			console.log('invalid image extension');
+		}
+
+		/**
+			try validating image
+			all errors => restore input ( calls restore handler automatically )
+		*/
+		loadImage(file, function(err, result) {
+			if(err) {
+				switch(err) {
+					case 'empty': // result == data: <= attempted empty file upload
+						createAlert('Select a valid image', 'medium');
+						restoreInput(inputID);
+						break;
+					case 'failed': // something wrong happened
+						createAlert('An error occurred, try again', 'medium');
+						restoreInput(inputID);
+						break;
+					case 'invalid_image': // Image cannot be displayed = invalid
+						createAlert('Invalid file selected', 'medium');
+						restoreInput(inputID);
+						break;
+					case 'dim_small': // Image dimensions are too small
+						createAlert('Image must be at least 100x100', 'medium');
+						restoreInput(inputID);
+						break;
+					default: // success set handler src
+						setHandler(handlerContainer, result);
+						break;
+				}
+			} else {
+				
 			}
-			if(result == 'invalid') {
-				createAlert('Invalid file selected', 'medium');
-				resetHandler(handlerID);
-				return false;
-			}
-			if(result == 'small') {
-				createAlert('Image must be at least 100x100', 'medium');
-				resetHandler(handlerID);
-				return false;
-			}
-			$(handlerID).attr('src', result);
-			showNextImageHandler();
 		});
+
 	});
 
 });
 
 
 
+/**
+	validate extension
+	validate image contents data ( can it be displayed? )
+	validate image dimensions ( must be at least 100x100 )
+	validate image size ( not more than 5MB ) <= might take time to upload for some users
+*/
 
 
 
@@ -86,95 +104,115 @@ $(function() {
 
 
 
+/**
+	set active='true', update child photo-handler src
+	Call drawHandlers
+*/
 
-
-
-
-
-
-
-
-
-
-function showNextImageHandler() {
-	// Iterates through all photo-handlers and ensures they're placed in
-	// chronological order
-	var i = 1;
-	var spawned = false;
-	$('.photo-handler').each(function() {
-		// If inactive & spawned is false show it
-		if($(this).attr('data-active') == 'false' && !spawned) {
-			$(this).attr('data-active', 'true');
-			spawned = true;
-		}
-		// Ensure the handlers are in order
-		if(i != parseInt($(this).attr('id').split('photo-handler')[1])) {
-			// If they're not equal, its out of order..Remove it and insert where correct
-			var placement = parseInt($(this).attr('id').split('photo-handler')[1]);
-			var handlerDOM = $(this)[0].outerHTML;
-			$(this).remove();
-			switch(placement) {
-				case 1:
-					// Insert before photo2
-					$(handlerDOM).insertBefore($('#photo-handler2'));
-					break;
-				case 2:
-					// Insert after photo1
-					$(handlerDOM).insertAfter($('#photo-handler1'));
-					break;
-				case 3:
-					// Insert after photo2
-					$(handlerDOM).insertAfter($('#photo-handler2'));
-					break;
-				case 4:
-					// Insert after photo3
-					$(handlerDOM).insertAfter($('#photo-handler3'));
-					break;
-			}
-		}
-		i++;
-	});
+function setHandler(handlerContainerID, dataURL) {
+	$(handlerContainerID).find('.photo-handler').attr('src', dataURL);
+	$(handlerContainerID).attr('data-active', 'true');
+	drawHandlers();
 	return;
 }
 
-function organizeHandlers() {
-	// Iterate through
-	return;
-}
-
-/** Loads an image and ensures it can load **/
+/**
+	Loads image and validates contents
+*/
 function loadImage(file, callback) {
-	var reader = new FileReader();
-	reader.onerror = function() {
-		callback(null);
-	};
-	reader.onloadend = function() {
+	var fileReader = new FileReader();
 
-		// Create image
-		var pre = new Image();
-		if(reader.result == 'data:') {
-			callback('invalid');
-			return;
-		}
-		pre.onerror = function() {
-			callback(null);
-			return;
-		};
-		pre.onload = function() {
-
-			// Ensure image width x height at minimum is 100x100
-			if(parseInt(pre.width) < 100 || parseInt(pre.height) < 100) {
-				callback('small');
-				return;
-			}
-
-			callback(reader.result);
-			return;
-		};
-		pre.src = reader.result;
+	fileReader.onerror = function() {
+		callback('failed', null);
 		return;
 	};
-	reader.readAsDataURL(file);
+
+	fileReader.onloadend = function() {
+
+		// is empty ?
+		if(fileReader.result == 'data:') {
+			callback('empty', null);
+			return;
+		} else {
+			// test image contents
+			var image = new Image();
+
+			image.onerror = function() {
+				callback('invalid_image', null);
+				return;
+			};
+
+			image.onload = function() {
+				// test dimensions
+				if(image.width < 100 || image.height < 100) {
+					callback('dim_small', null);
+					return;
+				}
+				callback(null, fileReader.result);
+			};
+
+			image.src = fileReader.result;
+		}
+
+		return;
+	};
+
+	fileReader.readAsDataURL(file); // attempt reading
+
+	return;
+}
+
+/**
+	removes and restores input field
+	calls restoreHandler()
+*/
+function restoreInput(inputID) {
+	var inputHTML = $(inputID)[0].outerHTML; // copy
+	restoreHandler($(inputID).attr('data-for')); // restore handler
+	$(inputID).remove(); // remove
+	$(inputHTML).insertAfter($('#post-form-description')); // restore input
+	return;
+}
+
+/**
+	Complete handler reset
+
+	Set active='false'
+	Set visible='false'
+	Set src='/img/cross.png'
+	Call drawHandlers()
+*/
+function restoreHandler(handlerContainerID) {
+	$(handlerContainerID).attr('data-active', 'false'); // data-active 
+	$(handlerContainerID).attr('data-visible', 'false'); // data-visible 
+	$(handlerContainerID).find('.photo-handler').attr('src', '/img/cross.png'); // src
+	drawHandlers();
+}
+
+/**
+	First sets all containers data-visible='false'
+	Displays active handlers and 1 inactive handler for use
+*/
+function drawHandlers() {
+	var newHandlerReady = false;
+	// Hide
+	$('.handler-container').each(function() {
+		$(this).attr('data-visible', 'false');
+	});
+	// Show all with data-active='true'
+	$('.handler-container').each(function() {
+		if($(this).attr('data-active') == 'true') {
+			$(this).attr('data-visible', 'true');
+		}
+	});
+	// Show 1 inactive handler
+	$('.handler-container').each(function() {
+		if($(this).attr('data-active') == 'false' && !newHandlerReady) {
+			$(this).attr('data-visible', 'true');
+			newHandlerReady = true;
+			return false;
+		}
+	});
 	return;
 }
 
@@ -193,37 +231,14 @@ function validImageExt(filename) {
 			|| ext == 'gif' || ext == 'tiff') ? true : false;
 }
 
-function resetImageInput(inputNoHash) {
-	var inputDOM = $('#' + inputNoHash)[0].outerHTML;
-	var placement = parseInt($('#' + inputNoHash).attr('data-for').split('photo-handler')[1]);
-	$('#' + inputNoHash).remove();
-	switch(placement) {
-		case 1:
-			// Insert before photo2
-			$(inputDOM).insertBefore($('#photo2'));
-			break;
-		case 2:
-			// Insert after photo1
-			$(inputDOM).insertAfter($('#photo1'));
-			break;
-		case 3:
-			// Insert after photo2
-			$(inputDOM).insertAfter($('#photo2'));
-			break;
-		case 4:
-			// Insert after photo3
-			$(inputDOM).insertAfter($('#photo3'));
-			break;
-	}
-	return;
-}
 
-/** Returns the photo handler ( displays currently selected image ) to default `cross` image **/
-function resetHandler(id) {
-	$(id).attr('src', '/img/cross.png');
-	resetImageInput($(id).attr('data-for'));
-	return;
-}
+
+
+
+
+
+
+
 
 
 
