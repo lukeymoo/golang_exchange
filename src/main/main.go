@@ -12,9 +12,14 @@ import (
 	session "../session"
 	database "../database"
 	"os"
+	"runtime"
 )
 
 func main() {
+
+	// Server using
+	fmt.Printf("CPU Usage %d\n", runtime.NumCPU());
+
 	// Initialize server
 	fmt.Println("Initializing server...")
 	router := httprouter.New()
