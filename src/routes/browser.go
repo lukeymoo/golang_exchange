@@ -15,6 +15,7 @@ import (
 	form "../forms"
 	"html/template"
 	"strings"
+	"sync"
 )
 
 // DELETE LATER
@@ -34,6 +35,20 @@ func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params)
 	Display home page
 */
 func IndexPage(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	var context session.TemplateContext
+	
+	context.TITLE = "Home"
+	context.PAGE = "HOME"
+	
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		session.CreateSessionObj(&context);
+	}(&wg)
+
 	tmp, err := template.ParseFiles("template/layout/master.html", "template/index.html")
 	if err != nil {
 		fmt.Println("Error =>", err)
@@ -41,13 +56,8 @@ func IndexPage(res http.ResponseWriter, req *http.Request, params httprouter.Par
 		return
 	}
 
-	var context session.TemplateContext
-
-	context.TITLE = "Home"
-	context.PAGE = "HOME"
-
-	session.CreateSessionObj(&context);
-
+	// Wait
+	wg.Wait()
 
 	err = tmp.Execute(res, context)
 	if err != nil {
