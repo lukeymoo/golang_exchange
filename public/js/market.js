@@ -27,11 +27,25 @@ $(function() {
 			document.execCommand('insertHTML', false, '<br><br>');
 			return false;
 		}
+		/**
+			Update form validity, this will enable or disable form button
+		*/
+		updatePostFormStatus();
 	});
 
 	/** Selection of images **/
 	$(document).on('click', '.photo-handler', function() {
 		$($(this).attr('data-for')).click();
+	});
+
+	/** Image removal on click **/
+	$(document).on('click', '.photo-remover', function() {
+		// RestoreInput
+		restoreInput($(this).attr('data-for'));
+		/**
+			Update form validity, this will enable or disable form button
+		*/
+		updatePostFormStatus();
 	});
 
 	/** Validating selection **/
@@ -44,13 +58,24 @@ $(function() {
 		if(!file) {
 			// Redraw handlers
 			restoreHandler(handlerContainer);
+			/**
+				Update form validity, this will enable or disable form button
+			*/
+			updatePostFormStatus();
+			return;
 		}
 
 		/**
 			If invalid extension, restore input field & restore handler
 		*/
 		if(!validImageExt(getExtension(file.name))) {
-			console.log('invalid image extension');
+			createAlert('Not a valid image extension `.' + getExtension(file.name) + '`', 'medium');
+			restoreInput(inputID);
+			/**
+				Update form validity, this will enable or disable form button
+			*/
+			updatePostFormStatus();
+			return;
 		}
 
 		/**
@@ -73,16 +98,19 @@ $(function() {
 						restoreInput(inputID);
 						break;
 					case 'dim_small': // Image dimensions are too small
-						createAlert('Image must be at least 100x100', 'medium');
+						createAlert('Image must be at least 100x100 in dimensions', 'medium');
 						restoreInput(inputID);
 						break;
-					default: // success set handler src
-						setHandler(handlerContainer, result);
+					default:
 						break;
 				}
 			} else {
-				
+				setHandler(handlerContainer, result);
 			}
+			/**
+				Update form validity, this will enable or disable form button
+			*/
+			updatePostFormStatus();
 		});
 
 	});
@@ -102,7 +130,13 @@ $(function() {
 
 
 
-
+/**
+	Update form status,
+	enabling or disabling form post button
+*/
+function updatePostFormStatus() {
+	return;
+}
 
 /**
 	set active='true', update child photo-handler src

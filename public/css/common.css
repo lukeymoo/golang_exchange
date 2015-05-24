@@ -312,6 +312,9 @@ body {
 .notification {
 	display: block;
 	float: right;
+	font-family: GOOGLE;
+	font-weight: normal;
+	font-size: .9em;
 	margin-bottom: 15px;
 	width: 275px;
 	height: 110px;
@@ -689,15 +692,34 @@ body {
 	font-weight: bold;
 	font-family: GOOGLE;
 	border-radius: 2px;
+}
+
+#post-form[data-valid='true'] ~ #post-form-button {
+	color: black;
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	background-color: rgb(100, 175, 225);
+}
+
+#post-form[data-valid='false'] ~ #post-form-button {
+	color: rgb(150, 150, 150);
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	background-color: rgb(200, 200, 200);
+}
+
+#post-form[data-valid='false'] ~ #post-form-button:active {
+	outline: none;
 }
 
 .hidden-input {
 	display: none;
 }
 
+.handler-container {
+	display: inline-block;
+}
+
 .photo-handler {
+	max-width: 100px;
 	cursor: pointer;
 	pointer: hand;
 }
@@ -710,13 +732,48 @@ body {
 	border: 2px dotted rgba(0, 0, 0, .3);
 }
 
+.photo-remover {
+	cursor: pointer;
+	pointer: hand;
+}
+
 .handler-container[data-active='true'] .photo-remover {
 	position: absolute;
 	display: inline-block;
 	margin-top: 2px;
 	margin-left: 2px;
+	padding: 5px 10px;
+	color: rgb(241, 241, 241);
+	background-color: rgba(0, 0, 0, 0.7);
+}
+
+.handler-container[data-active='true'] .photo-remover:hover {
+	color: rgb(200, 200, 200);
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
 .handler-container[data-active='false'] .photo-remover {
 	display: none;
 }
+
+/*
+
+<div id='post-type-container'>
+<span data-selected='true' data-value='sale' id='post-type-left' class='post-type'>Sale</span>
+<span data-selected='false' data-value='general' id='post-type-right' class='post-type'>General Post</span>
+</div>
+
+*/
+
+#post-type-container {
+}
+
+#post-type-left {
+}
+
+#post-type-right {
+}
+
+.post-type {
+}
+
