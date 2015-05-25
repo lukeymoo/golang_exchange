@@ -79,21 +79,61 @@ func CreateSessionObj(t *TemplateContext) {
 func SetSession(username string, email string, user_id string) (bool) {
 	username_formatted := strings.ToLower(username)
 	email_formatted := strings.ToLower(email)
-	rc.Set("LOGGED_IN", []byte("true"))
-	rc.Set("USERNAME", []byte(username_formatted))
-	rc.Set("USER_ID", []byte(user_id))
-	rc.Set("EMAIL", []byte(email_formatted))
-	UpdateLastActivity() // LAST_ACTIVITY
+	
+	var wg sync.WaitGroup
+
+	wg.Add(5)
+
+	go func() {
+		defer wg.Done()
+		rc.Set("LOGGED_IN", []byte("true"))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("USERNAME", []byte(username_formatted))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("USER_ID", []byte(user_id))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("EMAIL", []byte(email_formatted))
+	}()
+	go func() {
+		defer wg.Done()
+		UpdateLastActivity()
+	}()
+
+	wg.Wait()
 	return true
 }
 
 // Clears session
 func ClearSession() {
-	rc.Set("LOGGED_IN", []byte("false"))
-	rc.Set("LAST_ACTIVITY", []byte(""))
-	rc.Set("USERNAME", []byte(""))
-	rc.Set("USER_ID", []byte(""))
-	rc.Set("EMAIL", []byte(""))
+	var wg sync.WaitGroup
+	wg.Add(5)
+	go func() {
+		defer wg.Done()
+		rc.Set("LOGGED_IN", []byte("false"))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("LAST_ACTIVITY", []byte(""))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("USERNAME", []byte(""))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("USER_ID", []byte(""))
+	}()
+	go func() {
+		defer wg.Done()
+		rc.Set("EMAIL", []byte(""))
+	}()
+	wg.Wait()
 	return
 }
 
