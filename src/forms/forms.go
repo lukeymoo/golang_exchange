@@ -8,6 +8,7 @@ import (
 	"log"
 	"../models"
 	helper "../helper"
+	"sync"
 )
 
 type RegisterForm struct {
@@ -135,23 +136,37 @@ func (form *RegisterForm) IsEmpty() (bool) {
 /** API Response **/
 func (form *LoginForm) ValidateForm() (string, string) {
 	err := ""
+	idType := ""
 
 	// Ensure the form is not empty
 	if !form.IsComplete() {
 		return "", "invalid_form"
 	}
 
-	// Ensure the user supplied a username or email
-	idType := form.GetIDType()
-	
-	if idType == "" {
-		err += "U|"
-	}
+	var wg sync.WaitGroup
 
-	// Ensure the user supplied a valid password
-	if !ValidPassword(form.Password) {
-		err += "P|"
-	}
+	wg.Add(2)
+
+	go func(idType *string, err *string) {
+		defer wg.Done()
+		// Ensure the user supplied a username or email
+		*idType = form.GetIDType()
+
+		// handle bad id type
+		if *idType == "" {
+			*err += "U|"
+		}
+	}(&idType, &err)
+
+	go func(err *string) {
+		defer wg.Done()
+		// Ensure the user supplied a valid password
+		if !ValidPassword(form.Password) {
+			*err += "P|"
+		}
+	}(&err)
+
+	wg.Wait()
 
 	if err != "" {
 		err = err[:len(err)-1]
