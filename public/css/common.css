@@ -645,6 +645,14 @@ body {
 	background-color: rgba(0, 0, 0, 0.04);
 }
 
+#post-form-container[data-visible='false'] {
+	display: none;
+}
+
+#post-form-container[data-visible='true'] {
+	display: inline-block;
+}
+
 #post-form {
 	padding: 10px;
 }
@@ -654,8 +662,7 @@ body {
 }
 
 #post-form-description {
-	width: 100%;
-	min-width: 425px;
+	min-width: 428px;
 	height: 180px;
 	margin-bottom: 10px;
 	font-size: .9em;
@@ -716,10 +723,13 @@ body {
 
 .handler-container {
 	display: inline-block;
+	margin-right: 5px;
+	vertical-align: top;
 }
 
 .photo-handler {
 	max-width: 100px;
+	border-radius: 2px;
 	cursor: pointer;
 	pointer: hand;
 }

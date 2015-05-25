@@ -20,17 +20,17 @@ func main() {
 	// Server using
 	fmt.Printf("CPU Usage %d\n", runtime.NumCPU());
 
-	// Initialize server
-	fmt.Println("Initializing server...")
-	router := httprouter.New()
-
 	// Initialize redis client
-	fmt.Println("Initializing redis...")
+	fmt.Println("Initializing session handler...")
 	session.InitRedis()
 
 	// Initialize mongo client
-	fmt.Println("Initialize mongo...")
+	fmt.Println("Initializing database connection...")
 	database.InitMgo()
+
+	// Initialize router
+	fmt.Println("Initializing multiplexor...")
+	router := httprouter.New()
 
 	// Port
 	port := ":3000"

@@ -114,10 +114,11 @@
 
 {{ define "homePage" }}
 	<div class="center-col">
-		<div id='post-form-container'>
+		<div data-visible='false' id='post-form-container'>
 			<form id='post-form' data-type='sale' data-valid='false'>
 				<img id='post-form-validator' src='/img/cross.png'>
 				<input type='text' name='posttype' class='hidden-input' value='sale'>
+				<label>What kind of post is this?</label>
 				<div id='post-type-container'>
 					<span data-selected='true' data-value='sale' id='post-type-left' class='post-type'>Sale</span>
 					<span data-selected='false' data-value='general' id='post-type-right' class='post-type'>General Post</span>
@@ -128,7 +129,7 @@
 				<input type='file' data-for='#handler-container2' id='photo2' name='photo2' class='post-image hidden-input'>
 				<input type='file' data-for='#handler-container3' id='photo3' name='photo3' class='post-image hidden-input'>
 				<input type='file' data-for='#handler-container4' id='photo4' name='photo4' class='post-image hidden-input'>
-				<label>Add images</label>
+				<label id='post-image-label'>Sales <span style="color:rgb(190, 0, 0);">must</span> have at least 1 image</label>
 				<!-- Photo Handlers -->
 				<div id='preview-container'>
 					<!-- Handler 1 -->

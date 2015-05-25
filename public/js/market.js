@@ -22,7 +22,7 @@ $(function() {
 	});
 
 	/** Post description enter key **/
-	$(document).on('keydown', '#post-form-description', function(e) {
+	$(document).on('keyup keydown', '#post-form-description', function(e) {
 		/**
 			Update form validity, this will enable or disable form button
 		*/
@@ -47,6 +47,15 @@ $(function() {
 	/** Switch post type **/
 	$(document).on('click', '.post-type', function() {
 		changePostType($(this));
+		updatePostFormStatus();
+	});
+
+	/** Submit create form **/
+	$(document).on('click', '#post-form-button', function() {
+		// Ensure the form is valid before accepting submission
+		if($('#post-form').attr('data-valid') == 'true') {
+			alert('done');
+		}
 	});
 
 	/** Validating selection **/
@@ -136,6 +145,13 @@ function changePostType(button) {
 	$('#post-form').attr('data-type', $(button).attr('data-value'));
 	// select button
 	$(button).attr('data-selected', 'true');
+	// change label
+	if($('#post-form').attr('data-type') == 'sale') {
+		$('#post-image-label').html('Sales <span style="color:rgb(190, 0, 0);">must</span> have at least 1 image');
+	}
+	if($('#post-form').attr('data-type') == 'general') {
+		$('#post-image-label').html('Any images?');
+	}
 	return;
 }
 
@@ -155,19 +171,31 @@ function updatePostFormStatus() {
 	var validForm = true;
 	
 	// de-activate post button
-	if(!validDescription($('#post-form-description'))) {
+	if(!validDescription($('#post-form-description').val())) {
+		$('#post-form').attr('data-valid', 'false');
 		return;
 	}
 
 	switch($('#post-form').attr('data-type')) {
 		case 'sale':
 			// ensure at least 1 file is selected
+			var count = 0;
+			$('.post-image').each(function() {
+				if($(this)[0].files.length) {
+					count++;
+				}
+			});
+			if(!count) {
+				$('#post-form').attr('data-valid', 'false');
+				return;
+			}
 			break;
 		case 'general':
 			break;
 		default:
 			break;
 	}
+	$('#post-form').attr('data-valid', 'true');
 	return;
 }
 
@@ -215,7 +243,7 @@ function loadImage(file, callback) {
 
 			image.onload = function() {
 				// test dimensions
-				if(image.width < 100 || image.height < 100) {
+				if(image.width < 400 && image.height < 400) {
 					callback('dim_small', null);
 					return;
 				}
@@ -263,6 +291,7 @@ function restoreHandler(handlerContainerID) {
 /**
 	First sets all containers data-visible='false'
 	Displays active handlers and 1 inactive handler for use
+	Removes and appends handler to preview-container
 */
 function drawHandlers() {
 	var newHandlerReady = false;
@@ -281,6 +310,9 @@ function drawHandlers() {
 		if($(this).attr('data-active') == 'false' && !newHandlerReady) {
 			$(this).attr('data-visible', 'true');
 			newHandlerReady = true;
+			var outerHTML = $(this)[0].outerHTML;
+			$(this).remove();
+			$(outerHTML).appendTo($('#preview-container'));
 			return false;
 		}
 	});
