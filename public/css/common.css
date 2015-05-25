@@ -766,6 +766,8 @@ body {
 */
 
 #post-type-container {
+	display: block;
+	margin-bottom: 15px;
 }
 
 #post-type-left {
@@ -775,5 +777,33 @@ body {
 }
 
 .post-type {
+	width: 95px;
+	padding: 5px 10px;
+	opacity: .7;
+	text-align: center;
+	display: inline-block;
+	margin-right: 5px;
+	font-family: GOOGLE;
+	font-size: .85em;
+	color: rgb(100, 100, 100);
+	background-color: rgb(200, 200, 200);
+	border: 1px solid rgba(0, 0, 0, 0.175);
+	cursor: pointer;
+	pointer: hand;
+	-webkit-box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.125);
+	-moz-box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.125);
+	box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.125);
 }
 
+#post-form[data-type='sale'] .post-type[data-value='sale'],
+#post-form[data-type='general'] .post-type[data-value='general'] {
+	opacity: 1;
+	color: black;
+	background-color: rgb(0, 200, 255);
+}
+
+.post-type[data-selected='false']:hover {
+	-webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.175);
+	-moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.175);
+	box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.175);
+}

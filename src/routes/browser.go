@@ -15,7 +15,6 @@ import (
 	form "../forms"
 	"html/template"
 	"strings"
-	"sync"
 )
 
 // DELETE LATER
@@ -35,14 +34,9 @@ func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params)
 	Display home page
 */
 func IndexPage(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	var wg sync.WaitGroup
-	wg.Add(1)
 	var context session.TemplateContext
 
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		session.CreateSessionObj(&context);
-	}(&wg)
+	session.CreateSessionObj(&context);
 
 	context.TITLE = "Home"
 	context.PAGE = "HOME"
@@ -54,13 +48,9 @@ func IndexPage(res http.ResponseWriter, req *http.Request, params httprouter.Par
 		return
 	}
 
-	// Wait
-	wg.Wait()
-
 	err = tmp.Execute(res, context)
 	if err != nil {
 		fmt.Println("Error =>", err)
-		return
 	}
 	return
 }
@@ -87,12 +77,12 @@ func RegisterPage(res http.ResponseWriter, req *http.Request, params httprouter.
 	err = tmp.Execute(res, context)
 	if err != nil {
 		fmt.Println("Server error occurred")
-		return
 	}
 	return
 }
 
 /**
+	Cannot be authenticated
 	POST
 	/register/process
 	Processes register form & creates an account
@@ -106,15 +96,15 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 
 	// Create form
 	var registerForm = &form.RegisterForm {
-		Firstname: 		req.FormValue("f"),
-		Lastname: 		req.FormValue("l"),
-		Username: 		req.FormValue("u"),
+		Firstname: 		strings.ToLower(req.FormValue("f")),
+		Lastname: 		strings.ToLower(req.FormValue("l")),
+		Username: 		strings.ToLower(req.FormValue("u")),
 		Password:		req.FormValue("p"),
 		PasswordAgain: 	req.FormValue("pa"),
 		Email:			strings.ToLower(req.FormValue("e")),
 		EmailAgain:		strings.ToLower(req.FormValue("ea")),
 		Zipcode:		req.FormValue("z"),
-		Gender:			req.FormValue("g"),
+		Gender:			strings.ToLower(req.FormValue("g")),
 		Tos:			req.FormValue("tos"),
 	}
 
@@ -131,12 +121,12 @@ func ProcessRegister(res http.ResponseWriter, req *http.Request, params httprout
 	
 	// Save the user, set session & redirect
 	var user models.User
-	user.Firstname 	= req.Form.Get("f")
-	user.Lastname 	= req.Form.Get("l")
-	user.Username 	= req.Form.Get("u")
-	user.Password 	= req.Form.Get("p")
-	user.Email 		= req.Form.Get("e")
-	user.Zipcode 	= req.Form.Get("z")
+	user.Firstname 	= registerForm.Firstname
+	user.Lastname 	= registerForm.Lastname
+	user.Username 	= registerForm.Username
+	user.Password 	= registerForm.Password
+	user.Email 		= registerForm.Email
+	user.Zipcode 	= registerForm.Zipcode
 	if models.SaveUser(user) {
 		// Get Saved user
 		user = models.FindUserByUsername(req.Form.Get("u"))
@@ -158,8 +148,13 @@ func ForgotPage(res http.ResponseWriter, req *http.Request, params httprouter.Pa
 	return
 }
 
+/**
+	Needs auth
+	GET
+	/account
+	Account settings page
+*/
 func AccountPage(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	// Must be logged in
 	if !session.IsSession() {
 		http.Redirect(res, req, "/?err=need_login&next=/account", 302)
 		return
@@ -172,7 +167,7 @@ func AccountPage(res http.ResponseWriter, req *http.Request, params httprouter.P
 /**
 	GET
 	/login/logout
-	Logs the user out
+	Clear session variables
 */
 func Logout(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	session.ClearSession();

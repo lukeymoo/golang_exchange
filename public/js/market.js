@@ -22,11 +22,7 @@ $(function() {
 	});
 
 	/** Post description enter key **/
-	$(document).on('keydown', '.post-form-description[contenteditable="true"]', function(e) {
-		if(e.which == 13) {
-			document.execCommand('insertHTML', false, '<br><br>');
-			return false;
-		}
+	$(document).on('keydown', '#post-form-description', function(e) {
 		/**
 			Update form validity, this will enable or disable form button
 		*/
@@ -46,6 +42,11 @@ $(function() {
 			Update form validity, this will enable or disable form button
 		*/
 		updatePostFormStatus();
+	});
+
+	/** Switch post type **/
+	$(document).on('click', '.post-type', function() {
+		changePostType($(this));
 	});
 
 	/** Validating selection **/
@@ -128,14 +129,50 @@ $(function() {
 
 
 
+function changePostType(button) {
+	// Deselect all post-types
+	$('.post-type').each(function() {$(this).attr('data-selected', 'false');});
+	// change post-form type
+	$('#post-form').attr('data-type', $(button).attr('data-value'));
+	// select button
+	$(button).attr('data-selected', 'true');
+	return;
+}
+
 
 
 /**
 	Update form status,
 	enabling or disabling form post button
+	
+	ensure description has at least 5 characters
+
+	If post type == sale {
+		check if at least 1 image was selected
+	}
 */
 function updatePostFormStatus() {
+	var validForm = true;
+	
+	// de-activate post button
+	if(!validDescription($('#post-form-description'))) {
+		return;
+	}
+
+	switch($('#post-form').attr('data-type')) {
+		case 'sale':
+			// ensure at least 1 file is selected
+			break;
+		case 'general':
+			break;
+		default:
+			break;
+	}
 	return;
+}
+
+function validDescription(string) {
+	return (string.length >= 4 && string.length <= 2500) ? true : false;
 }
 
 /**
