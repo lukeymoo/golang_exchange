@@ -213,7 +213,7 @@ body {
 
 .header-control-button[data-active='true'] {
 	background-color: rgba(0, 0, 0, 0.03);
-	border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+	border-bottom: 2px solid rgba(0, 0, 0, 0.2);
 }
 
 .header-control-button[data-active='false'] {
@@ -299,7 +299,7 @@ body {
 
 #notification-container {
 	position: fixed;
-	z-index: 100;
+	z-index: 200;
 	top: 50px;
 	right: 0px;
 	padding-top: 25px;

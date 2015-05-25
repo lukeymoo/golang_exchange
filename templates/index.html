@@ -25,7 +25,12 @@
 	<!-- Header controls -->
 	{{ if eq .LOGGED_IN "true" }}
 		<div id='header-controls'>
-			<a href='/p/new'><span data-active='false' id='header-create-post-button' class='header-control-button'>Create Post</span></a>
+			{{ if eq .PAGE "CREATEPOST" }}
+				<span data-active='true' id='header-create-post-button' class='header-control-button'>Create Post</span>
+			{{ else }}
+				<a href='/p/new'><span data-active='false' id='header-create-post-button' class='header-control-button'>Create Post</span></a>
+			{{ end }}
+
 			<span data-active='false' id='header-notifications-button' class='header-control-button'>Notifications</span>
 			<span data-active='false' id='header-profile-button' class='header-control-button'>{{ .USERNAME }}</span>
 		</div>
@@ -155,10 +160,10 @@
 {{ end }}
 
 {{ define "createPost" }}
-<div data-visible='false' id='post-form-container'>
-	<form id='post-form' data-type='sale' data-valid='false'>
+<div data-visible='true' id='post-form-container'>
+	<form action='/p/process' method='post' enctype='multipart/form-data' id='post-form' data-type='sale' data-valid='false'>
 		<img id='post-form-validator' src='/img/cross.png'>
-		<input type='text' name='posttype' class='hidden-input' value='sale'>
+		<input type='text' id='hidden-post-type' value='sale' name='posttype' class='hidden-input' value='sale'>
 		<label>What kind of post is this?</label>
 		<div id='post-type-container'>
 			<span data-selected='true' data-value='sale' id='post-type-left' class='post-type'>Sale</span>

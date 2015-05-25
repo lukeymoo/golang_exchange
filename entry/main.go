@@ -50,8 +50,13 @@ func main() {
 	router.GET("/register", controller.RegisterPage) // Display registration page
 	router.POST("/register/process", controller.ProcessRegister) // Process registration form
 	router.POST("/login/process", controller.ProcessLogin) // Process login form ( Ajax Request )
+	/** INCOMPLETE **/
 	router.GET("/forgot", controller.ForgotPage) // Present user with form to reset password
+	/** INCOMPLETE **/
 	router.GET("/account", controller.AccountPage) // Account settings page
+	router.GET("/p/new", controller.CreatePost) // Create Post page
+	/** INCOMPLETE **/
+	router.POST("/p/process", controller.ProcessPost) // Process Post Form
 	router.GET("/login/logout", controller.Logout) // Logout
 
 	/** API Endpoints **/

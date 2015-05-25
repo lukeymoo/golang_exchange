@@ -54,7 +54,12 @@ $(function() {
 	$(document).on('click', '#post-form-button', function() {
 		// Ensure the form is valid before accepting submission
 		if($('#post-form').attr('data-valid') == 'true') {
-			alert('create post - debug');
+			// validate again
+			updatePostFormStatus();
+			// if still valid
+			if($('#post-form').attr('data-valid') == 'true') {
+				$('#post-form').submit();
+			}
 		}
 	});
 
@@ -113,7 +118,7 @@ $(function() {
 						restoreInput(inputID);
 						break;
 					case 'dim_small': // Image dimensions are too small
-						createAlert('Image must be at least 100x100 in dimensions', 'medium');
+						createAlert('Image must be at least 400 pixels on either side', 'medium');
 						restoreInput(inputID);
 						break;
 					default:
@@ -132,27 +137,13 @@ $(function() {
 
 });
 
-
-
-function toggleCreatePostForm() {
-	$('#post-form-container').attr('data-visible', 'true');
-	return;
-}
-
-/**
-	validate extension
-	validate image contents data ( can it be displayed? )
-	validate image dimensions ( must be at least 100x100 )
-	validate image size ( not more than 5MB ) <= might take time to upload for some users
-*/
-
-
-
 function changePostType(button) {
 	// Deselect all post-types
 	$('.post-type').each(function() {$(this).attr('data-selected', 'false');});
 	// change post-form type
 	$('#post-form').attr('data-type', $(button).attr('data-value'));
+	// fill hidden input with new type
+	$('#hidden-post-type').attr('value', $(button).attr('data-value'));
 	// select button
 	$(button).attr('data-selected', 'true');
 	// change label
@@ -252,7 +243,7 @@ function loadImage(file, callback) {
 			};
 
 			image.onload = function() {
-				// test dimensions
+				// Must have 
 				if(image.width < 400 && image.height < 400) {
 					callback('dim_small', null);
 					return;
