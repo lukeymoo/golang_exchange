@@ -1,2 +1,2 @@
 all:
-	go run src/main/main.go
+	go run entry/main.go
