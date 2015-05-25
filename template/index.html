@@ -156,7 +156,7 @@
 
 {{ define "createPost" }}
 <div data-visible='false' id='post-form-container'>
-	<form id='post-form' data-type='sale' data-valid='false'>
+	<form name='postform' id='post-form' data-type='sale' data-valid='false'>
 		<img id='post-form-validator' src='/img/cross.png'>
 		<input type='text' name='posttype' class='hidden-input' value='sale'>
 		<label>What kind of post is this?</label>
@@ -165,7 +165,7 @@
 			<span data-selected='false' data-value='general' id='post-type-right' class='post-type'>General Post</span>
 		</div>
 		<label>Post description</label>
-		<textarea id='post-form-description'></textarea>
+		<textarea form='postform' name='postdescription' id='post-form-description'></textarea>
 		<input type='file' data-for='#handler-container1' id='photo1' name='photo1' class='post-image hidden-input'>
 		<input type='file' data-for='#handler-container2' id='photo2' name='photo2' class='post-image hidden-input'>
 		<input type='file' data-for='#handler-container3' id='photo3' name='photo3' class='post-image hidden-input'>

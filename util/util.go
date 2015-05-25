@@ -50,7 +50,6 @@ type (
 
 )
 
-
 /**
 	Encodes a given string into an MD5 sum and returns it in string format
 */
@@ -324,7 +323,13 @@ func (form *LoginForm) ValidUsernameLogin() (bool) {
 
 
 
-
+// Validate a post description
+func ValidDescription(desc string) (bool) {
+	if len(desc) < 2 || len(desc) > 2500 {
+		return false
+	}
+	return true
+}
 
 // Validate Name
 func ValidName(name string) (bool) {

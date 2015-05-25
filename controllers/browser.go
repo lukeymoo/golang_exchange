@@ -180,8 +180,20 @@ func ProcessPost(res http.ResponseWriter, req *http.Request, params httprouter.P
 		http.Redirect(res, req, "/?err=need_login&next=/p/new", 302)
 		return
 	}
-	/** Save files **/
-	fmt.Fprint(res, "This route is incomplete")
+	
+	// Validate post type
+	if req.FormValue("posttype") != "sale" && req.FormValue("posttype") != "general" {
+		fmt.Fprint(res, "Invalid post type")
+		return
+	}
+
+	// Validate description
+	if len(req.FormValue("postdescription")) < 2 || len(req.FormValue("postdescription")) > 2500 {
+		//fmt.Fprint(res, "Invalid post description")
+		//return
+	}
+
+	fmt.Fprintf(res, "Post type => %s\nPost Description => %s :: Length => %d\n", req.FormValue("posttype"), req.FormValue("postdescription"), len(req.FormValue("postdescription")))
 	return
 }
 
