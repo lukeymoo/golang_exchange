@@ -19,12 +19,7 @@ import (
 
 // DELETE LATER
 func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	var registerForm = &form.RegisterForm {
-		Firstname: "Lukeymoo",
-		Lastname: req.FormValue("l"),
-		Username: "FakeUsername!",
-	}
-	fmt.Fprint(res, "Errors => " + registerForm.CreateQuery())
+	fmt.Fprint(res, "Nothing to debug.")
 	return
 }
 
