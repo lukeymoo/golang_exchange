@@ -20,6 +20,9 @@
 			{{ if eq .PAGE "HOME" }}
 				{{ template "homePage" . }}
 			{{ end }}
+			{{ if eq .PAGE "CREATEPOST" }}
+				{{ template "createPost" . }}
+			{{ end }}
 		</div>
 	</div>
 	<!-- JScripts -->

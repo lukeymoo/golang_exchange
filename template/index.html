@@ -25,9 +25,9 @@
 	<!-- Header controls -->
 	{{ if eq .LOGGED_IN "true" }}
 		<div id='header-controls'>
-			<span data-active='false' class='header-control-button'>Create Post</span>
-			<span data-active='false' class='header-control-button'>Notifications</span>
-			<span data-active='false' class='header-control-button'>{{ .USERNAME }}</span>
+			<a href='/p/new'><span data-active='false' id='header-create-post-button' class='header-control-button'>Create Post</span></a>
+			<span data-active='false' id='header-notifications-button' class='header-control-button'>Notifications</span>
+			<span data-active='false' id='header-profile-button' class='header-control-button'>{{ .USERNAME }}</span>
 		</div>
 	{{ else }}
 	<div id='header-controls'>
@@ -113,49 +113,8 @@
 {{ end }}
 
 {{ define "homePage" }}
+
 	<div class="center-col">
-		<div data-visible='false' id='post-form-container'>
-			<form id='post-form' data-type='sale' data-valid='false'>
-				<img id='post-form-validator' src='/img/cross.png'>
-				<input type='text' name='posttype' class='hidden-input' value='sale'>
-				<label>What kind of post is this?</label>
-				<div id='post-type-container'>
-					<span data-selected='true' data-value='sale' id='post-type-left' class='post-type'>Sale</span>
-					<span data-selected='false' data-value='general' id='post-type-right' class='post-type'>General Post</span>
-				</div>
-				<label>Post description</label>
-				<textarea id='post-form-description'></textarea>
-				<input type='file' data-for='#handler-container1' id='photo1' name='photo1' class='post-image hidden-input'>
-				<input type='file' data-for='#handler-container2' id='photo2' name='photo2' class='post-image hidden-input'>
-				<input type='file' data-for='#handler-container3' id='photo3' name='photo3' class='post-image hidden-input'>
-				<input type='file' data-for='#handler-container4' id='photo4' name='photo4' class='post-image hidden-input'>
-				<label id='post-image-label'>Sales <span style="color:rgb(190, 0, 0);">must</span> have at least 1 image</label>
-				<!-- Photo Handlers -->
-				<div id='preview-container'>
-					<!-- Handler 1 -->
-					<div id='handler-container1' class='handler-container' data-visible='true' data-active='false'>
-						<span data-for='#photo1' class='photo-remover'>&times;</span>
-						<img data-for='#photo1' id='photo-handler1' class='photo-handler' src='/img/cross.png'>
-					</div>
-					<!-- Handler 2 -->
-					<div id='handler-container2' class='handler-container' data-visible='false' data-active='false'>
-						<span data-for='#photo2' class='photo-remover'>&times;</span>
-						<img data-for='#photo2' id='photo-handler2' class='photo-handler' src='/img/cross.png'>
-					</div>
-					<!-- Handler 3 -->
-					<div id='handler-container3' class='handler-container' data-visible='false' data-active='false'>
-						<span data-for='#photo3' class='photo-remover'>&times;</span>
-						<img data-for='#photo3' id='photo-handler3' class='photo-handler' src='/img/cross.png'>
-					</div>
-					<!-- Handler 4 -->
-					<div id='handler-container4' class='handler-container' data-visible='false' data-active='false'>
-						<span data-for='#photo4' class='photo-remover'>&times;</span>
-						<img data-for='#photo4' id='photo-handler4' class='photo-handler' src='/img/cross.png'>
-					</div>
-				</div>
-			</form>
-			<button id='post-form-button'>Create Post</button>
-		</div>
 	<!--
 		<div class='feed-post'>
 			<div class='post-hidden-info'>
@@ -193,4 +152,49 @@
 		</div>
 	-->
 	</div>
+{{ end }}
+
+{{ define "createPost" }}
+<div data-visible='false' id='post-form-container'>
+	<form id='post-form' data-type='sale' data-valid='false'>
+		<img id='post-form-validator' src='/img/cross.png'>
+		<input type='text' name='posttype' class='hidden-input' value='sale'>
+		<label>What kind of post is this?</label>
+		<div id='post-type-container'>
+			<span data-selected='true' data-value='sale' id='post-type-left' class='post-type'>Sale</span>
+			<span data-selected='false' data-value='general' id='post-type-right' class='post-type'>General Post</span>
+		</div>
+		<label>Post description</label>
+		<textarea id='post-form-description'></textarea>
+		<input type='file' data-for='#handler-container1' id='photo1' name='photo1' class='post-image hidden-input'>
+		<input type='file' data-for='#handler-container2' id='photo2' name='photo2' class='post-image hidden-input'>
+		<input type='file' data-for='#handler-container3' id='photo3' name='photo3' class='post-image hidden-input'>
+		<input type='file' data-for='#handler-container4' id='photo4' name='photo4' class='post-image hidden-input'>
+		<label id='post-image-label'>Sales <span style="color:rgb(190, 0, 0);">must</span> have at least 1 image</label>
+		<!-- Photo Handlers -->
+		<div id='preview-container'>
+			<!-- Handler 1 -->
+			<div id='handler-container1' class='handler-container' data-visible='true' data-active='false'>
+				<span data-for='#photo1' class='photo-remover'>&times;</span>
+				<img data-for='#photo1' id='photo-handler1' class='photo-handler' src='/img/cross.png'>
+			</div>
+			<!-- Handler 2 -->
+			<div id='handler-container2' class='handler-container' data-visible='false' data-active='false'>
+				<span data-for='#photo2' class='photo-remover'>&times;</span>
+				<img data-for='#photo2' id='photo-handler2' class='photo-handler' src='/img/cross.png'>
+			</div>
+			<!-- Handler 3 -->
+			<div id='handler-container3' class='handler-container' data-visible='false' data-active='false'>
+				<span data-for='#photo3' class='photo-remover'>&times;</span>
+				<img data-for='#photo3' id='photo-handler3' class='photo-handler' src='/img/cross.png'>
+			</div>
+			<!-- Handler 4 -->
+			<div id='handler-container4' class='handler-container' data-visible='false' data-active='false'>
+				<span data-for='#photo4' class='photo-remover'>&times;</span>
+				<img data-for='#photo4' id='photo-handler4' class='photo-handler' src='/img/cross.png'>
+			</div>
+		</div>
+	</form>
+	<button id='post-form-button'>Create Post</button>
+</div>
 {{ end }}

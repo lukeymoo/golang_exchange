@@ -83,6 +83,7 @@ func ProcessLogin(res http.ResponseWriter, req *http.Request, params httprouter.
 		fmt.Fprint(res, "Server error")
 		return
 	}
+
 	session.SetSession(userAccount.Username, userAccount.Email, userAccount.Id.String())
 	res.Header().Set("Content-Type", "application/json")
 	res.Write(jsonResponse)

@@ -54,8 +54,13 @@ $(function() {
 	$(document).on('click', '#post-form-button', function() {
 		// Ensure the form is valid before accepting submission
 		if($('#post-form').attr('data-valid') == 'true') {
-			alert('done');
+			alert('create post - debug');
 		}
+	});
+
+	/** Open create post form **/
+	$(document).on('click', '#header-create-post-button', function() {
+		toggleCreatePostForm();
 	});
 
 	/** Validating selection **/
@@ -128,6 +133,11 @@ $(function() {
 });
 
 
+
+function toggleCreatePostForm() {
+	$('#post-form-container').attr('data-visible', 'true');
+	return;
+}
 
 /**
 	validate extension

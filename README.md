@@ -1,8 +1,6 @@
 # DMV Exchange in Google's Go language
 
-Experimental project to test the improvements of using Golang instead of Nodejs for marketplace backend
+<h1 style='color:rgb(0, 200, 255);'>Experimental</h1>
 
-Probably the most modern programming language designed to handle multiple cores & cpus
-
-Decided to port DMV Exchange as an attempt to keep server maintainence costs as low as possible & increasing maximum
-server load
+<p>Started with a desire to create a scalable high performance website on a shoestring budget</p>
+<p>Also with the intent to learn a new language <a href="http://golang.org/">Go</a> from Google</p>
