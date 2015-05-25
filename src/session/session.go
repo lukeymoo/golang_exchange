@@ -10,6 +10,7 @@ import (
 	"time"
 	"strconv"
 	"fmt"
+	"sync"
 )
 
 var (
@@ -40,12 +41,31 @@ func InitRedis() {
 }
 
 func CreateSessionObj(t *TemplateContext) {
+
 	// if there is a session check for username, userid etc..
 	if IsSession() {
-		t.LOGGED_IN = GetVariable("LOGGED_IN")
-		t.USERNAME 	= GetVariable("USERNAME")
-		t.USER_ID 	= GetVariable("USER_ID")
-		t.EMAIL 	= GetVariable("EMAIL")
+		var wg sync.WaitGroup
+
+		wg.Add(4)
+
+		go func() {
+			defer wg.Done()
+			t.LOGGED_IN = GetVariable("LOGGED_IN")
+		}()
+		go func() {
+			defer wg.Done()
+			t.USERNAME 	= GetVariable("USERNAME")
+		}()
+		go func() {
+			defer wg.Done()
+			t.USER_ID 	= GetVariable("USER_ID")
+		}()
+		go func() {
+			defer wg.Done()
+			t.EMAIL 	= GetVariable("EMAIL")
+		}()
+
+		wg.Wait()
 	} else { // If not logged in fill in defaults
 		t.LOGGED_IN = "false"
 		t.USERNAME = ""
