@@ -14,6 +14,7 @@ $(function() {
 
 	// Get session variables
 	getSessionState(function(res) {
+		console.log(res);
 		if(res.error) {
 			presentError(res.error);
 		} else {

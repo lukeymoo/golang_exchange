@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 	"strconv"
-	"fmt"
 	"sync"
 )
 
@@ -47,22 +46,22 @@ func CreateSessionObj(t *TemplateContext) {
 
 		wg.Add(4)
 
-		go func() {
+		go func(wg *sync.WaitGroup, template *TemplateContext) {
 			defer wg.Done()
-			t.LOGGED_IN = GetVariable("LOGGED_IN")
-		}()
-		go func() {
+			template.LOGGED_IN = GetVariable("LOGGED_IN")
+		}(&wg, t)
+		go func(wg *sync.WaitGroup, template *TemplateContext) {
 			defer wg.Done()
-			t.USERNAME 	= GetVariable("USERNAME")
-		}()
-		go func() {
+			template.USERNAME 	= GetVariable("USERNAME")
+		}(&wg, t)
+		go func(wg *sync.WaitGroup, template *TemplateContext) {
 			defer wg.Done()
-			t.USER_ID 	= GetVariable("USER_ID")
-		}()
-		go func() {
+			template.USER_ID 	= GetVariable("USER_ID")
+		}(&wg, t)
+		go func(wg *sync.WaitGroup, template *TemplateContext) {
 			defer wg.Done()
-			t.EMAIL 	= GetVariable("EMAIL")
-		}()
+			template.EMAIL 	= GetVariable("EMAIL")
+		}(&wg, t)
 
 		wg.Wait()
 	} else { // If not logged in fill in defaults
@@ -83,26 +82,26 @@ func SetSession(username string, email string, user_id string) (bool) {
 
 	wg.Add(5)
 
-	go func() {
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("LOGGED_IN", []byte("true"))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("USERNAME", []byte(username_formatted))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("USER_ID", []byte(user_id))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("EMAIL", []byte(email_formatted))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		UpdateLastActivity()
-	}()
+	}(&wg)
 
 	wg.Wait()
 	return true
@@ -112,26 +111,26 @@ func SetSession(username string, email string, user_id string) (bool) {
 func ClearSession() {
 	var wg sync.WaitGroup
 	wg.Add(5)
-	go func() {
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("LOGGED_IN", []byte("false"))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("LAST_ACTIVITY", []byte(""))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("USERNAME", []byte(""))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("USER_ID", []byte(""))
-	}()
-	go func() {
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		rc.Set("EMAIL", []byte(""))
-	}()
+	}(&wg)
 	wg.Wait()
 	return
 }
@@ -142,6 +141,8 @@ func IsSession() bool {
 	if IsLoggedIn() {
 		// Check if timed out
 		if IsTimedOut() {
+			// Clearsession
+			ClearSession()
 			return false
 		} else {
 			return true
@@ -178,17 +179,16 @@ func IsTimedOut() bool {
 	} else { // If it was set, determine if timed out ( 3600 seconds )
 		current_ts, err := strconv.Atoi(strconv.FormatInt(time.Now().Unix(), 10))
 		if err != nil {
-			fmt.Println("Session handler error determining if timed out => ", err)
 			return true
 		}
 		last_activity_i, err := strconv.Atoi(GetVariable("LAST_ACTIVITY"))
 		if err != nil {
-			fmt.Println("Session handler error determing if timed out ( part 2 ) => ", err)
 			return true
 		}
+		// the user timed out clear session
 		if current_ts - last_activity_i > 3600 {
 			return true
-		} else {
+		} else { // the user HASNT timed out update last activity
 			UpdateLastActivity()
 			return false
 		}

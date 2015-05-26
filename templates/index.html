@@ -161,16 +161,16 @@
 
 {{ define "createPost" }}
 <div data-visible='true' id='post-form-container'>
-	<form action='/p/process' method='post' enctype='multipart/form-data' id='post-form' data-type='sale' data-valid='false'>
+	<form action='/p/process' method='POST' enctype='multipart/form-data' name='postform' id='post-form' data-type='sale' data-valid='false'>
 		<img id='post-form-validator' src='/img/cross.png'>
-		<input type='text' id='hidden-post-type' value='sale' name='posttype' class='hidden-input' value='sale'>
+		<input type='text' name='posttype' class='hidden-input' value='sale'>
 		<label>What kind of post is this?</label>
 		<div id='post-type-container'>
 			<span data-selected='true' data-value='sale' id='post-type-left' class='post-type'>Sale</span>
 			<span data-selected='false' data-value='general' id='post-type-right' class='post-type'>General Post</span>
 		</div>
 		<label>Post description</label>
-		<textarea id='post-form-description'></textarea>
+		<textarea name='postdescription' id='post-form-description'></textarea>
 		<input type='file' data-for='#handler-container1' id='photo1' name='photo1' class='post-image hidden-input'>
 		<input type='file' data-for='#handler-container2' id='photo2' name='photo2' class='post-image hidden-input'>
 		<input type='file' data-for='#handler-container3' id='photo3' name='photo3' class='post-image hidden-input'>

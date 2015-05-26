@@ -19,7 +19,7 @@ import (
 
 // DELETE LATER
 func Debug(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	fmt.Fprint(res, "Nothing to debug\nBut thanks for the visit!")
+	fmt.Fprintf(res, "LOGGED_IN => %v\nUSERNAME => %s\n", session.IsLoggedIn(), session.GetVariable("USERNAME"))
 	return
 }
 
@@ -189,11 +189,21 @@ func ProcessPost(res http.ResponseWriter, req *http.Request, params httprouter.P
 
 	// Validate description
 	if len(req.FormValue("postdescription")) < 2 || len(req.FormValue("postdescription")) > 2500 {
-		//fmt.Fprint(res, "Invalid post description")
-		//return
+		fmt.Fprint(res, "Invalid post description")
+		return
 	}
 
-	fmt.Fprintf(res, "Post type => %s\nPost Description => %s :: Length => %d\n", req.FormValue("posttype"), req.FormValue("postdescription"), len(req.FormValue("postdescription")))
+	// Capture first image
+	photo1, photo1Header, err := req.FormFile("photo1")
+	if err != nil {
+		// If this field is empty
+		if err.Error() == "http: no such file" {
+			fmt.Fprint(res, "No such file")
+			return
+		}
+	}
+	
+	fmt.Fprintf(res, "File Upload 1\nFilePtr => %v\nFilename => %s\nMimetype => %s\n", photo1, photo1Header.Filename, photo1Header.Header)
 	return
 }
 
