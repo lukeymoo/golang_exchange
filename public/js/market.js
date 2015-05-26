@@ -118,7 +118,11 @@ $(function() {
 						restoreInput(inputID);
 						break;
 					case 'dim_small': // Image dimensions are too small
-						createAlert('Image must be at least 400 pixels on either side', 'medium');
+						createAlert('Image must be at least 300x300 in dimensions', 'medium');
+						restoreInput(inputID);
+						break;
+					case 'file_size':
+						createAlert("Image size must not exceed 5 MB", 'medium');
 						restoreInput(inputID);
 						break;
 					default:
@@ -234,6 +238,13 @@ function loadImage(file, callback) {
 			callback('empty', null);
 			return;
 		} else {
+
+			// test file size in MB ( cannot exceed 5 )
+			if(bytesToMB(file.size) > 4.95) {
+				callback("file_size", null);
+				return;
+			}
+
 			// test image contents
 			var image = new Image();
 
@@ -244,7 +255,7 @@ function loadImage(file, callback) {
 
 			image.onload = function() {
 				// Must have 
-				if(image.width < 400 && image.height < 400) {
+				if(image.width < 300 || image.height < 300) {
 					callback('dim_small', null);
 					return;
 				}
@@ -260,6 +271,10 @@ function loadImage(file, callback) {
 	fileReader.readAsDataURL(file); // attempt reading
 
 	return;
+}
+
+function bytesToMB(bytes) {
+	return parseFloat(Number((bytes / 1024) / 1024).toFixed(2));
 }
 
 /**
@@ -388,7 +403,6 @@ function closeAllPostActionMenus() {
 /** Opens/Closes post action menu **/
 function togglePostActionMenu(button) {
 	if($(button).parents('.feed-post').find('.post-action-menu-list').attr('data-state') == 'opened') {
-		console.log('closing');
 		closePostActionMenu(button);
 	} else if($(button).parents('.feed-post').find('.post-action-menu-list').attr('data-state') == 'closed') {
 		openPostActionMenu(button);

@@ -15,6 +15,11 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+	"sync"
+	"os"
+	"io"
+	"github.com/satori/go.uuid"
+	"image"
 )
 
 // DELETE LATER
@@ -193,17 +198,92 @@ func ProcessPost(res http.ResponseWriter, req *http.Request, params httprouter.P
 		return
 	}
 
-	// Capture first image
-	photo1, photo1Header, err := req.FormFile("photo1")
+	// Parse Multipart form
+	err := req.ParseMultipartForm(0)
 	if err != nil {
-		// If this field is empty
-		if err.Error() == "http: no such file" {
-			fmt.Fprint(res, "No such file")
+		fmt.Fprint(res, "Server error occurred", err)
+		return
+	}
+
+	formData := req.MultipartForm
+
+	imageCount := 0
+
+	var wg sync.WaitGroup
+
+	// read form data
+	photo1 := formData.File["photo1"]
+	if photo1 != nil {
+		imageCount++
+	}
+	photo2 := formData.File["photo2"]
+	if photo2 != nil {
+		imageCount++
+	}
+	photo3 := formData.File["photo3"]
+	if photo3 != nil {
+		imageCount++
+	}
+	photo4 := formData.File["photo4"]
+	if photo4 != nil {
+		imageCount++
+	}
+
+	if imageCount == 0 {
+		if req.FormValue("posttype") == "sale" {
+			fmt.Fprint(res, "Sale posts need at least 1 image")
 			return
 		}
+	} else if imageCount > 0 {
+		wg.Add(imageCount)
+		// Parse images
+		if photo1 != nil {
+			go func(wg *sync.WaitGroup) {
+				defer wg.Done()
+				fmt.Fprintf(res, "Photo1 => %t\n", photo1)
+			}(&wg)
+		}
+		if photo2 != nil {
+			go func(wg *sync.WaitGroup) {
+				defer wg.Done()
+				ph2, err:= photo2[0].Open()
+				if err != nil {
+					fmt.Fprintln(res, "Error occurred reading photo2")
+				}
+				defer ph2.Close()
+				tmp, err := os.Create(os.Getenv("GO_STATIC_PATH") + "/cdn/product/" + uuid.NewV4().String())
+				if err != nil {
+					fmt.Fprintln(res, "Failed to create temp file for photo2")
+					return
+				}
+				defer tmp.Close()
+				io.Copy(tmp, ph2)
+
+				// Validate the file
+
+			}(&wg)
+		}
+		if photo3 != nil {
+			go func(wg *sync.WaitGroup) {
+				defer wg.Done()
+			}(&wg)
+		}
+		if photo4 != nil {
+			go func(wg *sync.WaitGroup) {
+				defer wg.Done()
+			}(&wg)
+		}
+
+		wg.Wait()
 	}
-	
-	fmt.Fprintf(res, "File Upload 1\nFilePtr => %v\nFilename => %s\nMimetype => %s\n", photo1, photo1Header.Filename, photo1Header.Header)
+
+	fmt.Fprintf(res, "Post type => %s\n", req.FormValue("posttype"))
+	fmt.Fprintf(res, "Post description :: \n\n%s\n\n", req.FormValue("postdescription"))
+	fmt.Fprintln(res, "File upload count => ", imageCount)
+	fmt.Fprintln(res, "photo1 => ", photo1)
+	fmt.Fprintln(res, "photo2 => ", photo2)
+	fmt.Fprintln(res, "photo3 => ", photo3)
+	fmt.Fprintln(res, "photo4 => ", photo4)
 	return
 }
 

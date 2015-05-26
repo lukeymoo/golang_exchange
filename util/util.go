@@ -30,6 +30,12 @@ type (
 		USERNAME string
 	}
 
+	PostForm struct {
+		Type 		string
+		Description string
+		Images 		[]string
+	}
+
 	RegisterForm struct {
 		Firstname 		string
 		Lastname 		string
